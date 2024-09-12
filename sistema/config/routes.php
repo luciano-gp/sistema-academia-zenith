@@ -29,68 +29,35 @@ use Cake\Routing\RouteBuilder;
   * So you can use  `$this` to reference the application class instance
   * if required.
  */
+
 return function (RouteBuilder $routes): void {
-    /*
-     * The default class to use for all routes
-     *
-     * The following route classes are supplied with CakePHP and are appropriate
-     * to set as the default:
-     *
-     * - Route
-     * - InflectedRoute
-     * - DashedRoute
-     *
-     * If no call is made to `Router::defaultRouteClass()`, the class used is
-     * `Route` (`Cake\Routing\Route\Route`)
-     *
-     * Note that `Route` does not do any inflections on URLs which will result in
-     * inconsistently cased URLs when used with `{plugin}`, `{controller}` and
-     * `{action}` markers.
-     */
     $routes->setRouteClass(DashedRoute::class);
 
-    $routes->scope('/', function (RouteBuilder $builder): void {
-        /*
-         * Here, we are connecting '/' (base path) to a controller called 'Pages',
-         * its action called 'display', and we pass a param to select the view file
-         * to use (in this case, templates/Pages/home.php)...
-         */
-        $builder->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
+    $routes->scope('/api/', function (RouteBuilder $builder): void {
+        $builder->setExtensions(['json']);
 
-        /*
-         * ...and connect the rest of 'Pages' controller's URLs.
-         */
-        $builder->connect('/pages/*', 'Pages::display');
+        // Conectar rotas do tipo RESTful
+        $builder->resources('Pessoa');
+        $builder->resources('Usuario');
+        $builder->resources('Aula');
+        $builder->resources('Plano');
+        $builder->resources('Contrato');
+        $builder->resources('Exercicio');
+        $builder->resources('FormaPagamento');
+        $builder->resources('Historico');
+        $builder->resources('Lancamento');
+        $builder->resources('MotivoCancelamento');
+        $builder->resources('OcorrenciaAula');
+        $builder->resources('RegistroPresenca');
+        $builder->resources('Titulo');
+        $builder->resources('Treino');
+        $builder->resources('Turma');
 
-        /*
-         * Connect catchall routes for all controllers.
-         *
-         * The `fallbacks` method is a shortcut for
-         *
-         * ```
-         * $builder->connect('/{controller}', ['action' => 'index']);
-         * $builder->connect('/{controller}/{action}/*', []);
-         * ```
-         *
-         * You can remove these routes once you've connected the
-         * routes you want in your application.
-         */
-        $builder->fallbacks();
+        // Rotas adicionais da API podem ser conectadas aqui
+       // $builder->connect('/custom-endpoint', ['controller' => 'CustomController', 'action' => 'customAction']);
+
+        // Fallback para rotas REST padrão
+        $builder->fallbacks(DashedRoute::class);
     });
-
-    /*
-     * If you need a different set of middleware or none at all,
-     * open new scope and define routes there.
-     *
-     * ```
-     * $routes->scope('/api', function (RouteBuilder $builder): void {
-     *     // No $builder->applyMiddleware() here.
-     *
-     *     // Parse specified extensions from URLs
-     *     // $builder->setExtensions(['json', 'xml']);
-     *
-     *     // Connect API actions here.
-     * });
-     * ```
-     */
 };
+
