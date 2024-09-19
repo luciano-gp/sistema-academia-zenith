@@ -13,17 +13,14 @@ class UsuarioController extends AppController
     /**
      * Index method
      *
-     * @return void Renders view
+     * @return \Cake\Http\Response|null|void Renders view
      */
-    public function index(): void
+    public function index()
     {
-        $this->viewBuilder()->disableAutoLayout();
+        $query = $this->Usuario->find();
+        $usuario = $this->paginate($query);
 
-        $usuarios = $this->Usuario->find()->all()->toArray();
-        $this->set([
-            'usuarios' => $usuarios,
-            '_serialize' => ['usuarios']
-        ]);
+        $this->set(compact('usuario'));
     }
 
     /**
