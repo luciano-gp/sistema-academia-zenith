@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\Utility\Security;
 
 /**
  * Usuario Entity
@@ -27,4 +28,9 @@ class Usuario extends Entity
         'email' => true,
         'senha' => true,
     ];
+
+    protected function _setSenha($senha)
+    {
+        return Security::hash($senha);
+    }
 }

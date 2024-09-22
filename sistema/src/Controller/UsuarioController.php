@@ -1,7 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
+
+use Cake\Http\Response;
 
 /**
  * Usuario Controller
@@ -17,10 +20,16 @@ class UsuarioController extends AppController
      */
     public function index()
     {
-        $query = $this->Usuario->find();
-        $usuario = $this->paginate($query);
-
-        $this->set(compact('usuario'));
+        try {
+            $usuarios = $this->paginate($this->Usuario->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($usuarios));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar usuários",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +41,16 @@ class UsuarioController extends AppController
      */
     public function view($id = null)
     {
-        $usuario = $this->Usuario->get($id, contain: []);
-        $this->set(compact('usuario'));
+        try {
+            $usuario = $this->Usuario->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($usuario));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Usuário não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +61,26 @@ class UsuarioController extends AppController
     public function add()
     {
         $usuario = $this->Usuario->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
-            if ($this->Usuario->save($usuario)) {
-                $this->Flash->success(__('The usuario has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
+
+                $this->Usuario->save($usuario);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Usuário adicionado com sucesso',
+                        'usuario' => $usuario
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar usuário',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The usuario could not be saved. Please, try again.'));
         }
-        $this->set(compact('usuario'));
     }
 
     /**
@@ -65,17 +92,37 @@ class UsuarioController extends AppController
      */
     public function edit($id = null)
     {
-        $usuario = $this->Usuario->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
-            if ($this->Usuario->save($usuario)) {
-                $this->Flash->success(__('The usuario has been saved.'));
+        $usuario = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The usuario could not be saved. Please, try again.'));
+        try {
+            $usuario = $this->Usuario->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Usuário não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('usuario'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
+
+                $this->Usuario->save($usuario);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Usuário editado com sucesso',
+                        'usuario' => $usuario
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar usuário",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +135,32 @@ class UsuarioController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $usuario = $this->Usuario->get($id);
-        if ($this->Usuario->delete($usuario)) {
-            $this->Flash->success(__('The usuario has been deleted.'));
-        } else {
-            $this->Flash->error(__('The usuario could not be deleted. Please, try again.'));
+
+        $usuario = null;
+
+        try {
+            $usuario = $this->Usuario->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Usuário não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Usuario->delete($usuario);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Usuário deletado com sucesso',
+                    'usuario' => $usuario
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar usuário",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

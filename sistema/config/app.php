@@ -287,7 +287,7 @@ return [
             'host' => '177.44.248.113',
             'username' => 'admin',
             'password' => 'senhamysql',
-            'database' => 'academiav2',
+            'database' => 'academiav3',
 
             /*
              * For MariaDB/MySQL the internal default changed from utf8 to utf8mb4, aka full utf-8 support
