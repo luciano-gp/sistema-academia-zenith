@@ -38,8 +38,12 @@ class CidadeTable extends Table
         parent::initialize($config);
 
         $this->setTable('cidade');
-        $this->setDisplayField('id');
+        $this->setDisplayField('nome');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo('Estado', [
+            'foreignKey' => 'ref_estado',
+        ]);
     }
 
     /**

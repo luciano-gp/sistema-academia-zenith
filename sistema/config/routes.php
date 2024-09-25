@@ -71,6 +71,20 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/aula/edit/*', ['controller' => 'Aula', 'action' => 'edit']);
         $builder->connect('/aula/delete/*', ['controller' => 'Aula', 'action' => 'delete']);
 
+        $builder->connect('/cidade', ['controller' => 'Cidade', 'action' => 'index']);
+        $builder->connect('/cidade/listar', ['controller' => 'Cidade', 'action' => 'listar']);
+        $builder->connect('/cidade/view/*', ['controller' => 'Cidade', 'action' => 'view']);
+        $builder->connect('/cidade/add', ['controller' => 'Cidade', 'action' => 'add']);
+        $builder->connect('/cidade/edit/*', ['controller' => 'Cidade', 'action' => 'edit']);
+        $builder->connect('/cidade/delete/*', ['controller' => 'Cidade', 'action' => 'delete']);
+
+        $builder->connect('/estado', ['controller' => 'Estado', 'action' => 'index']);
+        $builder->connect('/estado/listar', ['controller' => 'Estado', 'action' => 'listar']);
+        $builder->connect('/estado/view/*', ['controller' => 'Estado', 'action' => 'view']);
+        $builder->connect('/estado/add', ['controller' => 'Estado', 'action' => 'add']);
+        $builder->connect('/estado/edit/*', ['controller' => 'Estado', 'action' => 'edit']);
+        $builder->connect('/estado/delete/*', ['controller' => 'Estado', 'action' => 'delete']);
+
         $builder->connect('/contrato', ['controller' => 'Contrato', 'action' => 'index']);
         $builder->connect('/contrato/view/*', ['controller' => 'Contrato', 'action' => 'view']);
         $builder->connect('/contrato/add', ['controller' => 'Contrato', 'action' => 'add']);
