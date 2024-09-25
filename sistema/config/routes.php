@@ -92,12 +92,14 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/contrato/delete/*', ['controller' => 'Contrato', 'action' => 'delete']);
 
         $builder->connect('/exercicio', ['controller' => 'Exercicio', 'action' => 'index']);
+        $builder->connect('/exercicio/listar', ['controller' => 'Exercicio', 'action' => 'listar']);
         $builder->connect('/exercicio/view/*', ['controller' => 'Exercicio', 'action' => 'view']);
         $builder->connect('/exercicio/add', ['controller' => 'Exercicio', 'action' => 'add']);
         $builder->connect('/exercicio/edit/*', ['controller' => 'Exercicio', 'action' => 'edit']);
         $builder->connect('/exercicio/delete/*', ['controller' => 'Exercicio', 'action' => 'delete']);
 
         $builder->connect('/forma_pagamento', ['controller' => 'FormaPagamento', 'action' => 'index']);
+        $builder->connect('/forma_pagamento/listar', ['controller' => 'FormaPagamento', 'action' => 'listar']);
         $builder->connect('/forma_pagamento/view/*', ['controller' => 'FormaPagamento', 'action' => 'view']);
         $builder->connect('/forma_pagamento/add', ['controller' => 'FormaPagamento', 'action' => 'add']);
         $builder->connect('/forma_pagamento/edit/*', ['controller' => 'FormaPagamento', 'action' => 'edit']);

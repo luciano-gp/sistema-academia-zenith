@@ -17,10 +17,35 @@ class ExercicioController extends AppController
      */
     public function index()
     {
-        $query = $this->Exercicio->find();
-        $exercicio = $this->paginate($query);
+        try {
+            $exercicios = $this->paginate($this->Exercicio->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($exercicios));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar exercicios",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
 
-        $this->set(compact('exercicio'));
+    /**
+     * Listar method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function listar()
+    {
+        try {
+            $exercicios = $this->Exercicio->find('list')->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($exercicios));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar exercicios",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +57,16 @@ class ExercicioController extends AppController
      */
     public function view($id = null)
     {
-        $exercicio = $this->Exercicio->get($id, contain: ['Treino']);
-        $this->set(compact('exercicio'));
+        try {
+            $exercicio = $this->Exercicio->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($exercicio));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Exercicio não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,17 +77,26 @@ class ExercicioController extends AppController
     public function add()
     {
         $exercicio = $this->Exercicio->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $exercicio = $this->Exercicio->patchEntity($exercicio, $this->request->getData());
-            if ($this->Exercicio->save($exercicio)) {
-                $this->Flash->success(__('The exercicio has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $exercicio = $this->Exercicio->patchEntity($exercicio, $this->request->getData());
+
+                $this->Exercicio->saveOrFail($exercicio);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Exercicio adicionado com sucesso',
+                        'exercicio' => $exercicio
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar exercicio',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The exercicio could not be saved. Please, try again.'));
         }
-        $treino = $this->Exercicio->Treino->find('list', limit: 200)->all();
-        $this->set(compact('exercicio', 'treino'));
     }
 
     /**
@@ -66,18 +108,37 @@ class ExercicioController extends AppController
      */
     public function edit($id = null)
     {
-        $exercicio = $this->Exercicio->get($id, contain: ['Treino']);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $exercicio = $this->Exercicio->patchEntity($exercicio, $this->request->getData());
-            if ($this->Exercicio->save($exercicio)) {
-                $this->Flash->success(__('The exercicio has been saved.'));
+        $exercicio = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The exercicio could not be saved. Please, try again.'));
+        try {
+            $exercicio = $this->Exercicio->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Exercicio não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $treino = $this->Exercicio->Treino->find('list', limit: 200)->all();
-        $this->set(compact('exercicio', 'treino'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $exercicio = $this->Exercicio->patchEntity($exercicio, $this->request->getData());
+
+                $this->Exercicio->saveOrFail($exercicio);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Exercicio editado com sucesso',
+                        'exercicio' => $exercicio
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar exercicio",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -90,13 +151,31 @@ class ExercicioController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $exercicio = $this->Exercicio->get($id);
-        if ($this->Exercicio->delete($exercicio)) {
-            $this->Flash->success(__('The exercicio has been deleted.'));
-        } else {
-            $this->Flash->error(__('The exercicio could not be deleted. Please, try again.'));
+        $exercicio = null;
+
+        try {
+            $exercicio = $this->Exercicio->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Exercicio não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Exercicio->delete($exercicio);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Exercicio deletado com sucesso',
+                    'exercicio' => $exercicio
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar exercicio",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }
