@@ -66,7 +66,7 @@ class UsuarioController extends AppController
             try {
                 $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
 
-                $this->Usuario->save($usuario);
+                $this->Usuario->saveOrFail($usuario);
 
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
@@ -108,7 +108,7 @@ class UsuarioController extends AppController
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
 
-                $this->Usuario->save($usuario);
+                $this->Usuario->saveOrFail($usuario);
 
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
