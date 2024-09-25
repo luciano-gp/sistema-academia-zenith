@@ -40,6 +40,11 @@ class UsuarioTable extends Table
         $this->setTable('usuario');
         $this->setDisplayField('email');
         $this->setPrimaryKey('id');
+
+        $this->hasOne('Pessoa', [
+            'foreignKey' => 'ref_usuario',
+            'joinTable' => 'treino_pessoa',
+        ]);
     }
 
     /**

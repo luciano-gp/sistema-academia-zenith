@@ -17,10 +17,16 @@ class PessoaController extends AppController
      */
     public function index()
     {
-        $query = $this->Pessoa->find();
-        $pessoa = $this->paginate($query);
-
-        $this->set(compact('pessoa'));
+        try {
+            $pessoas = $this->paginate($this->Pessoa->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($pessoas));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar pessoas",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +38,16 @@ class PessoaController extends AppController
      */
     public function view($id = null)
     {
-        $pessoa = $this->Pessoa->get($id, contain: ['Treino']);
-        $this->set(compact('pessoa'));
+        try {
+            $pessoa = $this->Pessoa->get($id, contain: ['Treino']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($pessoa));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Pessoa não encontrada",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,17 +58,26 @@ class PessoaController extends AppController
     public function add()
     {
         $pessoa = $this->Pessoa->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
-            if ($this->Pessoa->save($pessoa)) {
-                $this->Flash->success(__('The pessoa has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
+
+                $this->Pessoa->save($pessoa);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Pessoa adicionada com sucesso',
+                        'pessoa' => $pessoa
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar pessoa',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The pessoa could not be saved. Please, try again.'));
         }
-        $treino = $this->Pessoa->Treino->find('list', limit: 200)->all();
-        $this->set(compact('pessoa', 'treino'));
     }
 
     /**
@@ -66,18 +89,37 @@ class PessoaController extends AppController
      */
     public function edit($id = null)
     {
-        $pessoa = $this->Pessoa->get($id, contain: ['Treino']);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
-            if ($this->Pessoa->save($pessoa)) {
-                $this->Flash->success(__('The pessoa has been saved.'));
+        $pessoa = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The pessoa could not be saved. Please, try again.'));
+        try {
+            $pessoa = $this->Pessoa->get($id, contain: ['Treino']);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Pessoa não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $treino = $this->Pessoa->Treino->find('list', limit: 200)->all();
-        $this->set(compact('pessoa', 'treino'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
+
+                $this->Pessoa->save($pessoa);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Pessoa editada com sucesso',
+                        'pessoa' => $pessoa
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar pessoa",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -90,13 +132,31 @@ class PessoaController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $pessoa = $this->Pessoa->get($id);
-        if ($this->Pessoa->delete($pessoa)) {
-            $this->Flash->success(__('The pessoa has been deleted.'));
-        } else {
-            $this->Flash->error(__('The pessoa could not be deleted. Please, try again.'));
+        $pessoa = null;
+
+        try {
+            $pessoa = $this->Pessoa->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Pessoa não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Pessoa->delete($pessoa);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Pessoa deletada com sucesso',
+                    'pessoa' => $pessoa
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar pessoa",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }
