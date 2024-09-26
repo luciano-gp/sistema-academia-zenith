@@ -118,6 +118,7 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/lancamento/delete/*', ['controller' => 'Lancamento', 'action' => 'delete']);
 
         $builder->connect('/motivo_cancelamento', ['controller' => 'MotivoCancelamento', 'action' => 'index']);
+        $builder->connect('/motivo_cancelamento/listar', ['controller' => 'MotivoCancelamento', 'action' => 'listar']);
         $builder->connect('/motivo_cancelamento/view/*', ['controller' => 'MotivoCancelamento', 'action' => 'view']);
         $builder->connect('/motivo_cancelamento/add', ['controller' => 'MotivoCancelamento', 'action' => 'add']);
         $builder->connect('/motivo_cancelamento/edit/*', ['controller' => 'MotivoCancelamento', 'action' => 'edit']);
