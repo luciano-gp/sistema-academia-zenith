@@ -40,6 +40,10 @@ class RegistroPresencaTable extends Table
         $this->setTable('registro_presenca');
         $this->setDisplayField('dt_entrada');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo('Pessoa', [
+            'foreignKey' => 'ref_pessoa',
+        ]);
     }
 
     /**
