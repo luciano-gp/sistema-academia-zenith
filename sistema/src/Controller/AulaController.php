@@ -46,7 +46,7 @@ class AulaController extends AppController
         $aula = $this->Aula->newEmptyEntity();
         if ($this->request->is('post')) {
             $aula = $this->Aula->patchEntity($aula, $this->request->getData());
-            if ($this->Aula->save($aula)) {
+            if ($this->Aula->saveOrFail($aula)) {
                 $this->Flash->success(__('The aula has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -69,7 +69,7 @@ class AulaController extends AppController
         $aula = $this->Aula->get($id, contain: ['Plano']);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $aula = $this->Aula->patchEntity($aula, $this->request->getData());
-            if ($this->Aula->save($aula)) {
+            if ($this->Aula->saveOrFail($aula)) {
                 $this->Flash->success(__('The aula has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

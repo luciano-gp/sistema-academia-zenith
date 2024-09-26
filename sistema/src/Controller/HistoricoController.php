@@ -46,7 +46,7 @@ class HistoricoController extends AppController
         $historico = $this->Historico->newEmptyEntity();
         if ($this->request->is('post')) {
             $historico = $this->Historico->patchEntity($historico, $this->request->getData());
-            if ($this->Historico->save($historico)) {
+            if ($this->Historico->saveOrFail($historico)) {
                 $this->Flash->success(__('The historico has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +68,7 @@ class HistoricoController extends AppController
         $historico = $this->Historico->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $historico = $this->Historico->patchEntity($historico, $this->request->getData());
-            if ($this->Historico->save($historico)) {
+            if ($this->Historico->saveOrFail($historico)) {
                 $this->Flash->success(__('The historico has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

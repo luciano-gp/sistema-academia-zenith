@@ -46,7 +46,7 @@ class MotivoCancelamentoController extends AppController
         $motivoCancelamento = $this->MotivoCancelamento->newEmptyEntity();
         if ($this->request->is('post')) {
             $motivoCancelamento = $this->MotivoCancelamento->patchEntity($motivoCancelamento, $this->request->getData());
-            if ($this->MotivoCancelamento->save($motivoCancelamento)) {
+            if ($this->MotivoCancelamento->saveOrFail($motivoCancelamento)) {
                 $this->Flash->success(__('The motivo cancelamento has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +68,7 @@ class MotivoCancelamentoController extends AppController
         $motivoCancelamento = $this->MotivoCancelamento->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $motivoCancelamento = $this->MotivoCancelamento->patchEntity($motivoCancelamento, $this->request->getData());
-            if ($this->MotivoCancelamento->save($motivoCancelamento)) {
+            if ($this->MotivoCancelamento->saveOrFail($motivoCancelamento)) {
                 $this->Flash->success(__('The motivo cancelamento has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

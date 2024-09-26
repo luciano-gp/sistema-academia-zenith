@@ -46,7 +46,7 @@ class OcorrenciaAulaController extends AppController
         $ocorrenciaAula = $this->OcorrenciaAula->newEmptyEntity();
         if ($this->request->is('post')) {
             $ocorrenciaAula = $this->OcorrenciaAula->patchEntity($ocorrenciaAula, $this->request->getData());
-            if ($this->OcorrenciaAula->save($ocorrenciaAula)) {
+            if ($this->OcorrenciaAula->saveOrFail($ocorrenciaAula)) {
                 $this->Flash->success(__('The ocorrencia aula has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +68,7 @@ class OcorrenciaAulaController extends AppController
         $ocorrenciaAula = $this->OcorrenciaAula->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $ocorrenciaAula = $this->OcorrenciaAula->patchEntity($ocorrenciaAula, $this->request->getData());
-            if ($this->OcorrenciaAula->save($ocorrenciaAula)) {
+            if ($this->OcorrenciaAula->saveOrFail($ocorrenciaAula)) {
                 $this->Flash->success(__('The ocorrencia aula has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

@@ -46,7 +46,7 @@ class RegistroPresencaController extends AppController
         $registroPresenca = $this->RegistroPresenca->newEmptyEntity();
         if ($this->request->is('post')) {
             $registroPresenca = $this->RegistroPresenca->patchEntity($registroPresenca, $this->request->getData());
-            if ($this->RegistroPresenca->save($registroPresenca)) {
+            if ($this->RegistroPresenca->saveOrFail($registroPresenca)) {
                 $this->Flash->success(__('The registro presenca has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +68,7 @@ class RegistroPresencaController extends AppController
         $registroPresenca = $this->RegistroPresenca->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $registroPresenca = $this->RegistroPresenca->patchEntity($registroPresenca, $this->request->getData());
-            if ($this->RegistroPresenca->save($registroPresenca)) {
+            if ($this->RegistroPresenca->saveOrFail($registroPresenca)) {
                 $this->Flash->success(__('The registro presenca has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

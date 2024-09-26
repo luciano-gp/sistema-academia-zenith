@@ -46,7 +46,7 @@ class TreinoController extends AppController
         $treino = $this->Treino->newEmptyEntity();
         if ($this->request->is('post')) {
             $treino = $this->Treino->patchEntity($treino, $this->request->getData());
-            if ($this->Treino->save($treino)) {
+            if ($this->Treino->saveOrFail($treino)) {
                 $this->Flash->success(__('The treino has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -70,7 +70,7 @@ class TreinoController extends AppController
         $treino = $this->Treino->get($id, contain: ['Exercicio', 'Pessoa']);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $treino = $this->Treino->patchEntity($treino, $this->request->getData());
-            if ($this->Treino->save($treino)) {
+            if ($this->Treino->saveOrFail($treino)) {
                 $this->Flash->success(__('The treino has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

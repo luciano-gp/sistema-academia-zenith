@@ -46,7 +46,7 @@ class LancamentoController extends AppController
         $lancamento = $this->Lancamento->newEmptyEntity();
         if ($this->request->is('post')) {
             $lancamento = $this->Lancamento->patchEntity($lancamento, $this->request->getData());
-            if ($this->Lancamento->save($lancamento)) {
+            if ($this->Lancamento->saveOrFail($lancamento)) {
                 $this->Flash->success(__('The lancamento has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +68,7 @@ class LancamentoController extends AppController
         $lancamento = $this->Lancamento->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $lancamento = $this->Lancamento->patchEntity($lancamento, $this->request->getData());
-            if ($this->Lancamento->save($lancamento)) {
+            if ($this->Lancamento->saveOrFail($lancamento)) {
                 $this->Flash->success(__('The lancamento has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

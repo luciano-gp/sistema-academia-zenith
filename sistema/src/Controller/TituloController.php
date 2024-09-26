@@ -46,7 +46,7 @@ class TituloController extends AppController
         $titulo = $this->Titulo->newEmptyEntity();
         if ($this->request->is('post')) {
             $titulo = $this->Titulo->patchEntity($titulo, $this->request->getData());
-            if ($this->Titulo->save($titulo)) {
+            if ($this->Titulo->saveOrFail($titulo)) {
                 $this->Flash->success(__('The titulo has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +68,7 @@ class TituloController extends AppController
         $titulo = $this->Titulo->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $titulo = $this->Titulo->patchEntity($titulo, $this->request->getData());
-            if ($this->Titulo->save($titulo)) {
+            if ($this->Titulo->saveOrFail($titulo)) {
                 $this->Flash->success(__('The titulo has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

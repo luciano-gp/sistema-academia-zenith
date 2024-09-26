@@ -46,7 +46,7 @@ class PlanoController extends AppController
         $plano = $this->Plano->newEmptyEntity();
         if ($this->request->is('post')) {
             $plano = $this->Plano->patchEntity($plano, $this->request->getData());
-            if ($this->Plano->save($plano)) {
+            if ($this->Plano->saveOrFail($plano)) {
                 $this->Flash->success(__('The plano has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -69,7 +69,7 @@ class PlanoController extends AppController
         $plano = $this->Plano->get($id, contain: ['Aula']);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $plano = $this->Plano->patchEntity($plano, $this->request->getData());
-            if ($this->Plano->save($plano)) {
+            if ($this->Plano->saveOrFail($plano)) {
                 $this->Flash->success(__('The plano has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

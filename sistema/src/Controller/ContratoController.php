@@ -46,7 +46,7 @@ class ContratoController extends AppController
         $contrato = $this->Contrato->newEmptyEntity();
         if ($this->request->is('post')) {
             $contrato = $this->Contrato->patchEntity($contrato, $this->request->getData());
-            if ($this->Contrato->save($contrato)) {
+            if ($this->Contrato->saveOrFail($contrato)) {
                 $this->Flash->success(__('The contrato has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +68,7 @@ class ContratoController extends AppController
         $contrato = $this->Contrato->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $contrato = $this->Contrato->patchEntity($contrato, $this->request->getData());
-            if ($this->Contrato->save($contrato)) {
+            if ($this->Contrato->saveOrFail($contrato)) {
                 $this->Flash->success(__('The contrato has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

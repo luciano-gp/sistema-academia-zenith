@@ -17,10 +17,16 @@ class TurmaController extends AppController
      */
     public function index()
     {
-        $query = $this->Turma->find();
-        $turma = $this->paginate($query);
-
-        $this->set(compact('turma'));
+        try {
+            $turmas = $this->paginate($this->Turma->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($turmas));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar usuários",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +38,16 @@ class TurmaController extends AppController
      */
     public function view($id = null)
     {
-        $turma = $this->Turma->get($id, contain: []);
-        $this->set(compact('turma'));
+        try {
+            $usuario = $this->Usuario->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($usuario));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Usuário não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -46,7 +60,7 @@ class TurmaController extends AppController
         $turma = $this->Turma->newEmptyEntity();
         if ($this->request->is('post')) {
             $turma = $this->Turma->patchEntity($turma, $this->request->getData());
-            if ($this->Turma->save($turma)) {
+            if ($this->Turma->saveOrFail($turma)) {
                 $this->Flash->success(__('The turma has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -68,7 +82,7 @@ class TurmaController extends AppController
         $turma = $this->Turma->get($id, contain: []);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $turma = $this->Turma->patchEntity($turma, $this->request->getData());
-            if ($this->Turma->save($turma)) {
+            if ($this->Turma->saveOrFail($turma)) {
                 $this->Flash->success(__('The turma has been saved.'));
 
                 return $this->redirect(['action' => 'index']);

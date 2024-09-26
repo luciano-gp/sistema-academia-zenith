@@ -11,6 +11,9 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int $ref_pessoa
  * @property int $ref_ocorrencia_aula
+ *
+ * @property \App\Model\Entity\Pessoa $pessoa
+ * @property \App\Model\Entity\OcorrenciaAula $ocorrencia_aula
  */
 class Turma extends Entity
 {
