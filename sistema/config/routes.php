@@ -143,6 +143,7 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/plano/delete/*', ['controller' => 'Plano', 'action' => 'delete']);
 
         $builder->connect('/registro_presenca', ['controller' => 'RegistroPresenca', 'action' => 'index']);
+        $builder->connect('/registro_presenca/listar/*', ['controller' => 'RegistroPresenca', 'action' => 'listar']);
         $builder->connect('/registro_presenca/view/*', ['controller' => 'RegistroPresenca', 'action' => 'view']);
         $builder->connect('/registro_presenca/add', ['controller' => 'RegistroPresenca', 'action' => 'add']);
         $builder->connect('/registro_presenca/edit/*', ['controller' => 'RegistroPresenca', 'action' => 'edit']);
