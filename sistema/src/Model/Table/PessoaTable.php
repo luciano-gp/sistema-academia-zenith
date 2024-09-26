@@ -53,6 +53,10 @@ class PessoaTable extends Table
             'foreignKey' => 'ref_usuario',
             'joinTable' => 'treino_pessoa',
         ]);
+
+        $this->belongsTo('Cidade', [
+            'foreignKey' => 'ref_cidade',
+        ]);
     }
 
     /**

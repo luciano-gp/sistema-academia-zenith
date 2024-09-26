@@ -18,7 +18,7 @@ class PessoaController extends AppController
     public function index()
     {
         try {
-            $pessoas = $this->paginate($this->Pessoa->find());
+            $pessoas = $this->paginate($this->Pessoa->find()->contain(['Cidade', 'Usuario']));
             return $this->response->withType('application/json')->withStringBody(json_encode($pessoas));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
@@ -39,7 +39,7 @@ class PessoaController extends AppController
     public function view($id = null)
     {
         try {
-            $pessoa = $this->Pessoa->get($id, contain: ['Treino']);
+            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario']);
             return $this->response->withType('application/json')->withStringBody(json_encode($pessoa));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
@@ -63,7 +63,7 @@ class PessoaController extends AppController
             try {
                 $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
 
-                $this->Pessoa->save($pessoa);
+                $this->Pessoa->saveOrFail($pessoa);
 
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
@@ -92,7 +92,7 @@ class PessoaController extends AppController
         $pessoa = null;
 
         try {
-            $pessoa = $this->Pessoa->get($id, contain: ['Treino']);
+            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario']);
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
@@ -105,7 +105,7 @@ class PessoaController extends AppController
             if ($this->request->is(['patch', 'post', 'put'])) {
                 $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
 
-                $this->Pessoa->save($pessoa);
+                $this->Pessoa->saveOrFail($pessoa);
 
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
@@ -135,7 +135,7 @@ class PessoaController extends AppController
         $pessoa = null;
 
         try {
-            $pessoa = $this->Pessoa->get($id, contain: []);
+            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario']);
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([

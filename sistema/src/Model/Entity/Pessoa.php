@@ -18,7 +18,6 @@ use Cake\ORM\Entity;
  * @property int $ref_usuario
  * @property int $ref_cidade
  *
- * @property \App\Model\Entity\Treino[] $treino
  * @property \App\Model\Entity\Usuario $usuario
  */
 class Pessoa extends Entity
