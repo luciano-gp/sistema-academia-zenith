@@ -48,6 +48,10 @@ class PlanoTable extends Table
             'targetForeignKey' => 'aula_id',
             'joinTable' => 'aula_plano',
         ]);
+
+        $this->belongsTo('Historico', [
+            'foreignKey' => 'ref_historico',
+        ]);
     }
 
     /**

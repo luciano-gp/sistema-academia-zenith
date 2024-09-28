@@ -40,6 +40,10 @@ class HistoricoTable extends Table
         $this->setTable('historico');
         $this->setDisplayField('descricao');
         $this->setPrimaryKey('id');
+
+        $this->hasMany('Plano', [
+            'foreignKey' => 'ref_historico'
+        ]);
     }
 
     /**

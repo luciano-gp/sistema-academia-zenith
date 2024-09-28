@@ -137,6 +137,7 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/pessoa/delete/*', ['controller' => 'Pessoa', 'action' => 'delete']);
 
         $builder->connect('/plano', ['controller' => 'Plano', 'action' => 'index']);
+        $builder->connect('/plano/listar/*', ['controller' => 'Plano', 'action' => 'listar']);
         $builder->connect('/plano/view/*', ['controller' => 'Plano', 'action' => 'view']);
         $builder->connect('/plano/add', ['controller' => 'Plano', 'action' => 'add']);
         $builder->connect('/plano/edit/*', ['controller' => 'Plano', 'action' => 'edit']);
