@@ -17,10 +17,16 @@ class TituloController extends AppController
      */
     public function index()
     {
-        $query = $this->Titulo->find();
-        $titulo = $this->paginate($query);
-
-        $this->set(compact('titulo'));
+        try {
+            $titulos = $this->paginate($this->Titulo->find()->contain(['Contrato']));
+            return $this->response->withType('application/json')->withStringBody(json_encode($titulos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar títulos",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +38,16 @@ class TituloController extends AppController
      */
     public function view($id = null)
     {
-        $titulo = $this->Titulo->get($id, contain: []);
-        $this->set(compact('titulo'));
+        try {
+            $titulo = $this->Titulo->get($id, contain: ['Contrato']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($titulo));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Título não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +58,26 @@ class TituloController extends AppController
     public function add()
     {
         $titulo = $this->Titulo->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $titulo = $this->Titulo->patchEntity($titulo, $this->request->getData());
-            if ($this->Titulo->saveOrFail($titulo)) {
-                $this->Flash->success(__('The titulo has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $titulo = $this->Titulo->patchEntity($titulo, $this->request->getData());
+
+                $this->Titulo->saveOrFail($titulo);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Título adicionado com sucesso',
+                        'titulo' => $titulo
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar título',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The titulo could not be saved. Please, try again.'));
         }
-        $this->set(compact('titulo'));
     }
 
     /**
@@ -65,17 +89,37 @@ class TituloController extends AppController
      */
     public function edit($id = null)
     {
-        $titulo = $this->Titulo->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $titulo = $this->Titulo->patchEntity($titulo, $this->request->getData());
-            if ($this->Titulo->saveOrFail($titulo)) {
-                $this->Flash->success(__('The titulo has been saved.'));
+        $titulo = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The titulo could not be saved. Please, try again.'));
+        try {
+            $titulo = $this->Titulo->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Título não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('titulo'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $titulo = $this->Titulo->patchEntity($titulo, $this->request->getData());
+
+                $this->Titulo->saveOrFail($titulo);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Título editado com sucesso',
+                        'titulo' => $titulo
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar título",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +132,31 @@ class TituloController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $titulo = $this->Titulo->get($id);
-        if ($this->Titulo->delete($titulo)) {
-            $this->Flash->success(__('The titulo has been deleted.'));
-        } else {
-            $this->Flash->error(__('The titulo could not be deleted. Please, try again.'));
+        $titulo = null;
+
+        try {
+            $titulo = $this->Titulo->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Título não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Titulo->delete($titulo);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Título deletado com sucesso',
+                    'titulo' => $titulo
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar título",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

@@ -61,6 +61,10 @@ class ContratoTable extends Table
             'foreignKey' => 'ref_pessoa_indicacao',
             'className' => 'Pessoa',
         ]);
+
+        $this->hasMany('Titulo', [
+            'foreignKey' => 'ref_contrato',
+        ]);
     }
 
     /**

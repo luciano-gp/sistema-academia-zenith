@@ -18,7 +18,7 @@ class ContratoController extends AppController
     public function index()
     {
         try {
-            $contratos = $this->paginate($this->Contrato->find()->contain(['Plano', 'Pessoa', 'FormaPagamento', 'MotivoCancelamento', 'PessoaIndicacao']));
+            $contratos = $this->paginate($this->Contrato->find()->contain(['Plano', 'Pessoa', 'FormaPagamento', 'MotivoCancelamento', 'PessoaIndicacao', 'Titulo']));
             return $this->response->withType('application/json')->withStringBody(json_encode($contratos));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
@@ -39,7 +39,7 @@ class ContratoController extends AppController
     public function view($id = null)
     {
         try {
-            $contrato = $this->Contrato->get($id, contain: ['Plano', 'Pessoa', 'FormaPagamento', 'MotivoCancelamento', 'PessoaIndicacao']);
+            $contrato = $this->Contrato->get($id, contain: ['Plano', 'Pessoa', 'FormaPagamento', 'MotivoCancelamento', 'PessoaIndicacao', 'Titulo']);
             return $this->response->withType('application/json')->withStringBody(json_encode($contrato));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
