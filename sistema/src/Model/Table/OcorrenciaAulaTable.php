@@ -40,6 +40,10 @@ class OcorrenciaAulaTable extends Table
         $this->setTable('ocorrencia_aula');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo('Aula', [
+            'foreignKey' => 'ref_aula',
+        ]);
     }
 
     /**
