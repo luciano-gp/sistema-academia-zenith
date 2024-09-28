@@ -157,6 +157,8 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/titulo/delete/*', ['controller' => 'Titulo', 'action' => 'delete']);
 
         $builder->connect('/treino', ['controller' => 'Treino', 'action' => 'index']);
+        $builder->connect('/treino/listar', ['controller' => 'Treino', 'action' => 'listar']);
+        $builder->connect('/treino/listar_por_pessoa/*', ['controller' => 'Treino', 'action' => 'listar_por_pessoa']);
         $builder->connect('/treino/view/*', ['controller' => 'Treino', 'action' => 'view']);
         $builder->connect('/treino/add', ['controller' => 'Treino', 'action' => 'add']);
         $builder->connect('/treino/edit/*', ['controller' => 'Treino', 'action' => 'edit']);

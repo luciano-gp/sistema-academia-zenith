@@ -44,8 +44,8 @@ class PessoaTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsToMany('Treino', [
-            'foreignKey' => 'pessoa_id',
-            'targetForeignKey' => 'treino_id',
+            'foreignKey' => 'ref_pessoa',
+            'targetForeignKey' => 'ref_treino',
             'joinTable' => 'treino_pessoa',
         ]);
 
