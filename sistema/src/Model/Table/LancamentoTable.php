@@ -40,6 +40,14 @@ class LancamentoTable extends Table
         $this->setTable('lancamento');
         $this->setDisplayField('descricao');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo('Historico', [
+            'foreignKey' => 'ref_historico',
+        ]);
+
+        $this->belongsTo('Titulo', [
+            'foreignKey' => 'ref_titulo',
+        ]);
     }
 
     /**

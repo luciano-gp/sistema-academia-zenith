@@ -44,8 +44,8 @@ class AulaTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsToMany('Plano', [
-            'foreignKey' => 'aula_id',
-            'targetForeignKey' => 'plano_id',
+            'foreignKey' => 'ref_aula',
+            'targetForeignKey' => 'ref_plano',
             'joinTable' => 'aula_plano',
         ]);
     }

@@ -17,10 +17,16 @@ class AulaController extends AppController
      */
     public function index()
     {
-        $query = $this->Aula->find();
-        $aula = $this->paginate($query);
-
-        $this->set(compact('aula'));
+        try {
+            $aulas = $this->paginate($this->Aula->find()->contain(['Plano']));
+            return $this->response->withType('application/json')->withStringBody(json_encode($aulas));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar aulas",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +38,16 @@ class AulaController extends AppController
      */
     public function view($id = null)
     {
-        $aula = $this->Aula->get($id, contain: ['Plano']);
-        $this->set(compact('aula'));
+        try {
+            $aula = $this->Aula->get($id, contain: ['Plano']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($aula));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Aula não encontrada",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,17 +58,26 @@ class AulaController extends AppController
     public function add()
     {
         $aula = $this->Aula->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $aula = $this->Aula->patchEntity($aula, $this->request->getData());
-            if ($this->Aula->save($aula)) {
-                $this->Flash->success(__('The aula has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $aula = $this->Aula->patchEntity($aula, $this->request->getData());
+
+                $this->Aula->saveOrFail($aula);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Aula adicionada com sucesso',
+                        'aula' => $aula
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar aula',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The aula could not be saved. Please, try again.'));
         }
-        $plano = $this->Aula->Plano->find('list', limit: 200)->all();
-        $this->set(compact('aula', 'plano'));
     }
 
     /**
@@ -66,18 +89,37 @@ class AulaController extends AppController
      */
     public function edit($id = null)
     {
-        $aula = $this->Aula->get($id, contain: ['Plano']);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $aula = $this->Aula->patchEntity($aula, $this->request->getData());
-            if ($this->Aula->save($aula)) {
-                $this->Flash->success(__('The aula has been saved.'));
+        $aula = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The aula could not be saved. Please, try again.'));
+        try {
+            $aula = $this->Aula->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Aula não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $plano = $this->Aula->Plano->find('list', limit: 200)->all();
-        $this->set(compact('aula', 'plano'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $aula = $this->Aula->patchEntity($aula, $this->request->getData());
+
+                $this->Aula->saveOrFail($aula);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Aula editada com sucesso',
+                        'aula' => $aula
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar aula",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -90,13 +132,31 @@ class AulaController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $aula = $this->Aula->get($id);
-        if ($this->Aula->delete($aula)) {
-            $this->Flash->success(__('The aula has been deleted.'));
-        } else {
-            $this->Flash->error(__('The aula could not be deleted. Please, try again.'));
+        $aula = null;
+
+        try {
+            $aula = $this->Aula->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Aula não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Aula->delete($aula);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Aula deletada com sucesso',
+                    'aula' => $aula
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar aula",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

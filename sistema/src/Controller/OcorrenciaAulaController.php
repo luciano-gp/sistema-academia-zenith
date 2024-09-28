@@ -17,10 +17,16 @@ class OcorrenciaAulaController extends AppController
      */
     public function index()
     {
-        $query = $this->OcorrenciaAula->find();
-        $ocorrenciaAula = $this->paginate($query);
-
-        $this->set(compact('ocorrenciaAula'));
+        try {
+            $ocorrenciaAulas = $this->paginate($this->OcorrenciaAula->find()->contain(['Aula']));
+            return $this->response->withType('application/json')->withStringBody(json_encode($ocorrenciaAulas));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar ocorrências de aulas",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +38,16 @@ class OcorrenciaAulaController extends AppController
      */
     public function view($id = null)
     {
-        $ocorrenciaAula = $this->OcorrenciaAula->get($id, contain: []);
-        $this->set(compact('ocorrenciaAula'));
+        try {
+            $ocorrenciaAula = $this->OcorrenciaAula->get($id, contain: ['Aula']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($ocorrenciaAula));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Ocorrência de aula não encontrada",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +58,26 @@ class OcorrenciaAulaController extends AppController
     public function add()
     {
         $ocorrenciaAula = $this->OcorrenciaAula->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $ocorrenciaAula = $this->OcorrenciaAula->patchEntity($ocorrenciaAula, $this->request->getData());
-            if ($this->OcorrenciaAula->save($ocorrenciaAula)) {
-                $this->Flash->success(__('The ocorrencia aula has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $ocorrenciaAula = $this->OcorrenciaAula->patchEntity($ocorrenciaAula, $this->request->getData());
+
+                $this->OcorrenciaAula->saveOrFail($ocorrenciaAula);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Ocorrência de aula adicionada com sucesso',
+                        'ocorrencia_aula' => $ocorrenciaAula
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar ocorrência de aula',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The ocorrencia aula could not be saved. Please, try again.'));
         }
-        $this->set(compact('ocorrenciaAula'));
     }
 
     /**
@@ -65,17 +89,37 @@ class OcorrenciaAulaController extends AppController
      */
     public function edit($id = null)
     {
-        $ocorrenciaAula = $this->OcorrenciaAula->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $ocorrenciaAula = $this->OcorrenciaAula->patchEntity($ocorrenciaAula, $this->request->getData());
-            if ($this->OcorrenciaAula->save($ocorrenciaAula)) {
-                $this->Flash->success(__('The ocorrencia aula has been saved.'));
+        $ocorrenciaAula = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The ocorrencia aula could not be saved. Please, try again.'));
+        try {
+            $ocorrenciaAula = $this->OcorrenciaAula->get($id, contain: ['Aula']);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Ocorrência de aula não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('ocorrenciaAula'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $ocorrenciaAula = $this->OcorrenciaAula->patchEntity($ocorrenciaAula, $this->request->getData());
+
+                $this->OcorrenciaAula->saveOrFail($ocorrenciaAula);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Ocorrência de aula editada com sucesso',
+                        'ocorrencia_aula' => $ocorrenciaAula
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar ocorrência de aula",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +132,31 @@ class OcorrenciaAulaController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $ocorrenciaAula = $this->OcorrenciaAula->get($id);
-        if ($this->OcorrenciaAula->delete($ocorrenciaAula)) {
-            $this->Flash->success(__('The ocorrencia aula has been deleted.'));
-        } else {
-            $this->Flash->error(__('The ocorrencia aula could not be deleted. Please, try again.'));
+        $ocorrenciaAula = null;
+
+        try {
+            $ocorrenciaAula = $this->OcorrenciaAula->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Ocorrência de aula não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->OcorrenciaAula->delete($ocorrenciaAula);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Ocorrência de aula deletada com sucesso',
+                    'ocorrencia_aula' => $ocorrenciaAula
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar ocorrência de aula",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

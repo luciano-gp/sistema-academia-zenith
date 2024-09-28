@@ -17,10 +17,35 @@ class EstadoController extends AppController
      */
     public function index()
     {
-        $query = $this->Estado->find();
-        $estado = $this->paginate($query);
+        try {
+            $estados = $this->paginate($this->Estado->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($estados));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar estados",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
 
-        $this->set(compact('estado'));
+    /**
+     * Listar method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function listar()
+    {
+        try {
+            $estados = $this->Estado->find('list')->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($estados));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar estados",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +57,16 @@ class EstadoController extends AppController
      */
     public function view($id = null)
     {
-        $estado = $this->Estado->get($id, contain: []);
-        $this->set(compact('estado'));
+        try {
+            $estado = $this->Estado->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($estado));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Estado não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +77,26 @@ class EstadoController extends AppController
     public function add()
     {
         $estado = $this->Estado->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $estado = $this->Estado->patchEntity($estado, $this->request->getData());
-            if ($this->Estado->save($estado)) {
-                $this->Flash->success(__('The estado has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $estado = $this->Estado->patchEntity($estado, $this->request->getData());
+
+                $this->Estado->saveOrFail($estado);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Estado adicionado com sucesso',
+                        'estado' => $estado
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar estado',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The estado could not be saved. Please, try again.'));
         }
-        $this->set(compact('estado'));
     }
 
     /**
@@ -65,17 +108,37 @@ class EstadoController extends AppController
      */
     public function edit($id = null)
     {
-        $estado = $this->Estado->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $estado = $this->Estado->patchEntity($estado, $this->request->getData());
-            if ($this->Estado->save($estado)) {
-                $this->Flash->success(__('The estado has been saved.'));
+        $estado = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The estado could not be saved. Please, try again.'));
+        try {
+            $estado = $this->Estado->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Estado não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('estado'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $estado = $this->Estado->patchEntity($estado, $this->request->getData());
+
+                $this->Estado->saveOrFail($estado);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Estado editado com sucesso',
+                        'estado' => $estado
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar estado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +151,31 @@ class EstadoController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $estado = $this->Estado->get($id);
-        if ($this->Estado->delete($estado)) {
-            $this->Flash->success(__('The estado has been deleted.'));
-        } else {
-            $this->Flash->error(__('The estado could not be deleted. Please, try again.'));
+        $estado = null;
+
+        try {
+            $estado = $this->Estado->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Estado não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Estado->delete($estado);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Estado deletado com sucesso',
+                    'estado' => $estado
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar estado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

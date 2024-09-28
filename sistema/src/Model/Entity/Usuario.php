@@ -4,20 +4,25 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\Utility\Security;
 
 /**
- * Turma Entity
+ * Usuario Entity
  *
  * @property int $id
- * @property int $ref_pessoa
- * @property int $ref_ocorrencia_aula
+ * @property string $email
+ * @property string $senha
  *
  * @property \App\Model\Entity\Pessoa $pessoa
- * @property \App\Model\Entity\OcorrenciaAula $ocorrencia_aula
  */
-class Turma extends Entity
+class Usuario extends Entity
 {
     protected array $_accessible = [
         '*' => true,
     ];
+
+    protected function _setSenha($senha)
+    {
+        return Security::hash($senha);
+    }
 }

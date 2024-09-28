@@ -17,10 +17,35 @@ class MotivoCancelamentoController extends AppController
      */
     public function index()
     {
-        $query = $this->MotivoCancelamento->find();
-        $motivoCancelamento = $this->paginate($query);
+        try {
+            $motivoCancelamentos = $this->paginate($this->MotivoCancelamento->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($motivoCancelamentos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar motivos de cancelamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
 
-        $this->set(compact('motivoCancelamento'));
+    /**
+     * Listar method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function listar()
+    {
+        try {
+            $motivoCancelamentos = $this->MotivoCancelamento->find('list')->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($motivoCancelamentos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar motivos de cancelamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +57,16 @@ class MotivoCancelamentoController extends AppController
      */
     public function view($id = null)
     {
-        $motivoCancelamento = $this->MotivoCancelamento->get($id, contain: []);
-        $this->set(compact('motivoCancelamento'));
+        try {
+            $motivoCancelamento = $this->MotivoCancelamento->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($motivoCancelamento));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Motivo de cancelamento não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +77,26 @@ class MotivoCancelamentoController extends AppController
     public function add()
     {
         $motivoCancelamento = $this->MotivoCancelamento->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $motivoCancelamento = $this->MotivoCancelamento->patchEntity($motivoCancelamento, $this->request->getData());
-            if ($this->MotivoCancelamento->save($motivoCancelamento)) {
-                $this->Flash->success(__('The motivo cancelamento has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $motivoCancelamento = $this->MotivoCancelamento->patchEntity($motivoCancelamento, $this->request->getData());
+
+                $this->MotivoCancelamento->saveOrFail($motivoCancelamento);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Motivo de cancelamento adicionado com sucesso',
+                        'motivo_cancelamento' => $motivoCancelamento
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar motivo de cancelamento',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The motivo cancelamento could not be saved. Please, try again.'));
         }
-        $this->set(compact('motivoCancelamento'));
     }
 
     /**
@@ -65,17 +108,37 @@ class MotivoCancelamentoController extends AppController
      */
     public function edit($id = null)
     {
-        $motivoCancelamento = $this->MotivoCancelamento->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $motivoCancelamento = $this->MotivoCancelamento->patchEntity($motivoCancelamento, $this->request->getData());
-            if ($this->MotivoCancelamento->save($motivoCancelamento)) {
-                $this->Flash->success(__('The motivo cancelamento has been saved.'));
+        $motivoCancelamento = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The motivo cancelamento could not be saved. Please, try again.'));
+        try {
+            $motivoCancelamento = $this->MotivoCancelamento->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "MotivoCancelamento não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('motivoCancelamento'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $motivoCancelamento = $this->MotivoCancelamento->patchEntity($motivoCancelamento, $this->request->getData());
+
+                $this->MotivoCancelamento->saveOrFail($motivoCancelamento);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Motivo de cancelamento editado com sucesso',
+                        'motivo_cancelamento' => $motivoCancelamento
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar motivo de cancelamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +151,31 @@ class MotivoCancelamentoController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $motivoCancelamento = $this->MotivoCancelamento->get($id);
-        if ($this->MotivoCancelamento->delete($motivoCancelamento)) {
-            $this->Flash->success(__('The motivo cancelamento has been deleted.'));
-        } else {
-            $this->Flash->error(__('The motivo cancelamento could not be deleted. Please, try again.'));
+        $motivoCancelamento = null;
+
+        try {
+            $motivoCancelamento = $this->MotivoCancelamento->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Motivo de cancelamento não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->MotivoCancelamento->delete($motivoCancelamento);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Motivo de cancelamento deletado com sucesso',
+                    'motivo_cancelamento' => $motivoCancelamento
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar motivo de cancelamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

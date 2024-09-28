@@ -17,10 +17,35 @@ class CidadeController extends AppController
      */
     public function index()
     {
-        $query = $this->Cidade->find();
-        $cidade = $this->paginate($query);
+        try {
+            $cidades = $this->paginate($this->Cidade->find()->contain(['Estado']));
+            return $this->response->withType('application/json')->withStringBody(json_encode($cidades));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar cidades",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
 
-        $this->set(compact('cidade'));
+    /**
+     * Listar method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function listar()
+    {
+        try {
+            $cidades = $this->Cidade->find('list')->contain(['Estado'])->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($cidades));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar cidades",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +57,16 @@ class CidadeController extends AppController
      */
     public function view($id = null)
     {
-        $cidade = $this->Cidade->get($id, contain: []);
-        $this->set(compact('cidade'));
+        try {
+            $cidade = $this->Cidade->get($id, contain:['Estado']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($cidade));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Cidade não encontrada",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +77,26 @@ class CidadeController extends AppController
     public function add()
     {
         $cidade = $this->Cidade->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $cidade = $this->Cidade->patchEntity($cidade, $this->request->getData());
-            if ($this->Cidade->save($cidade)) {
-                $this->Flash->success(__('The cidade has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $cidade = $this->Cidade->patchEntity($cidade, $this->request->getData());
+
+                $this->Cidade->saveOrFail($cidade);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Cidade adicionada com sucesso',
+                        'cidade' => $cidade
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar cidade',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The cidade could not be saved. Please, try again.'));
         }
-        $this->set(compact('cidade'));
     }
 
     /**
@@ -65,17 +108,37 @@ class CidadeController extends AppController
      */
     public function edit($id = null)
     {
-        $cidade = $this->Cidade->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $cidade = $this->Cidade->patchEntity($cidade, $this->request->getData());
-            if ($this->Cidade->save($cidade)) {
-                $this->Flash->success(__('The cidade has been saved.'));
+        $cidade = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The cidade could not be saved. Please, try again.'));
+        try {
+            $cidade = $this->Cidade->get($id, contain: ['Estado']);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Cidade não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('cidade'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $cidade = $this->Cidade->patchEntity($cidade, $this->request->getData());
+
+                $this->Cidade->saveOrFail($cidade);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Cidade editada com sucesso',
+                        'cidade' => $cidade
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar cidade",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +151,31 @@ class CidadeController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $cidade = $this->Cidade->get($id);
-        if ($this->Cidade->delete($cidade)) {
-            $this->Flash->success(__('The cidade has been deleted.'));
-        } else {
-            $this->Flash->error(__('The cidade could not be deleted. Please, try again.'));
+        $cidade = null;
+
+        try {
+            $cidade = $this->Cidade->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Cidade não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Cidade->delete($cidade);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Cidade deletada com sucesso',
+                    'cidade' => $cidade
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar cidade",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

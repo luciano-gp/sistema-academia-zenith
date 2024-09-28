@@ -17,10 +17,16 @@ class ContratoController extends AppController
      */
     public function index()
     {
-        $query = $this->Contrato->find();
-        $contrato = $this->paginate($query);
-
-        $this->set(compact('contrato'));
+        try {
+            $contratos = $this->paginate($this->Contrato->find()->contain(['Plano', 'Pessoa', 'FormaPagamento', 'MotivoCancelamento', 'PessoaIndicacao', 'Titulo']));
+            return $this->response->withType('application/json')->withStringBody(json_encode($contratos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar contratos",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +38,16 @@ class ContratoController extends AppController
      */
     public function view($id = null)
     {
-        $contrato = $this->Contrato->get($id, contain: []);
-        $this->set(compact('contrato'));
+        try {
+            $contrato = $this->Contrato->get($id, contain: ['Plano', 'Pessoa', 'FormaPagamento', 'MotivoCancelamento', 'PessoaIndicacao', 'Titulo']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($contrato));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Contrato não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +58,26 @@ class ContratoController extends AppController
     public function add()
     {
         $contrato = $this->Contrato->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $contrato = $this->Contrato->patchEntity($contrato, $this->request->getData());
-            if ($this->Contrato->save($contrato)) {
-                $this->Flash->success(__('The contrato has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $contrato = $this->Contrato->patchEntity($contrato, $this->request->getData());
+
+                $this->Contrato->saveOrFail($contrato);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Contrato adicionado com sucesso',
+                        'contrato' => $contrato
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar contrato',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The contrato could not be saved. Please, try again.'));
         }
-        $this->set(compact('contrato'));
     }
 
     /**
@@ -65,17 +89,37 @@ class ContratoController extends AppController
      */
     public function edit($id = null)
     {
-        $contrato = $this->Contrato->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $contrato = $this->Contrato->patchEntity($contrato, $this->request->getData());
-            if ($this->Contrato->save($contrato)) {
-                $this->Flash->success(__('The contrato has been saved.'));
+        $contrato = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The contrato could not be saved. Please, try again.'));
+        try {
+            $contrato = $this->Contrato->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Contrato não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('contrato'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $contrato = $this->Contrato->patchEntity($contrato, $this->request->getData());
+
+                $this->Contrato->saveOrFail($contrato);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Contrato editado com sucesso',
+                        'contrato' => $contrato
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar contrato",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +132,31 @@ class ContratoController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $contrato = $this->Contrato->get($id);
-        if ($this->Contrato->delete($contrato)) {
-            $this->Flash->success(__('The contrato has been deleted.'));
-        } else {
-            $this->Flash->error(__('The contrato could not be deleted. Please, try again.'));
+        $contrato = null;
+
+        try {
+            $contrato = $this->Contrato->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Contrato não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Contrato->delete($contrato);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Contrato deletado com sucesso',
+                    'contrato' => $contrato
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar contrato",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Datasource\EntityInterface;
+
 /**
  * AulaPlano Controller
  *
@@ -11,29 +13,23 @@ namespace App\Controller;
 class AulaPlanoController extends AppController
 {
     /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
-    public function index()
-    {
-        $query = $this->AulaPlano->find();
-        $aulaPlano = $this->paginate($query);
-
-        $this->set(compact('aulaPlano'));
-    }
-
-    /**
      * View method
      *
-     * @param string|null $id Aula Plano id.
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($id = null)
+    public function view($ref_plano = null)
     {
-        $aulaPlano = $this->AulaPlano->get($id, contain: []);
-        $this->set(compact('aulaPlano'));
+        try {
+            $aulaPlano = $this->AulaPlano->find()->where(['ref_plano' => $ref_plano])->firstOrFail()->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($aulaPlano));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Aula do plano não encontrada",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,57 +40,63 @@ class AulaPlanoController extends AppController
     public function add()
     {
         $aulaPlano = $this->AulaPlano->newEmptyEntity();
+
         if ($this->request->is('post')) {
-            $aulaPlano = $this->AulaPlano->patchEntity($aulaPlano, $this->request->getData());
-            if ($this->AulaPlano->save($aulaPlano)) {
-                $this->Flash->success(__('The aula plano has been saved.'));
+            try {
+                $aulaPlano = $this->AulaPlano->patchEntity($aulaPlano, $this->request->getData());
 
-                return $this->redirect(['action' => 'index']);
+                $this->AulaPlano->saveOrFail($aulaPlano);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Aula do plano adicionada com sucesso',
+                        'aula_plano' => $aulaPlano
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar aula do plano',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The aula plano could not be saved. Please, try again.'));
         }
-        $this->set(compact('aulaPlano'));
-    }
-
-    /**
-     * Edit method
-     *
-     * @param string|null $id Aula Plano id.
-     * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function edit($id = null)
-    {
-        $aulaPlano = $this->AulaPlano->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $aulaPlano = $this->AulaPlano->patchEntity($aulaPlano, $this->request->getData());
-            if ($this->AulaPlano->save($aulaPlano)) {
-                $this->Flash->success(__('The aula plano has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The aula plano could not be saved. Please, try again.'));
-        }
-        $this->set(compact('aulaPlano'));
     }
 
     /**
      * Delete method
      *
-     * @param string|null $id Aula Plano id.
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete($ref_aula = null, $ref_plano = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $aulaPlano = $this->AulaPlano->get($id);
-        if ($this->AulaPlano->delete($aulaPlano)) {
-            $this->Flash->success(__('The aula plano has been deleted.'));
-        } else {
-            $this->Flash->error(__('The aula plano could not be deleted. Please, try again.'));
+        $aulaPlano = null;
+
+        try {
+            /** @var EntityInterface $aulaPlano */
+            $aulaPlano = $this->AulaPlano->find()->where(['ref_aula' => $ref_aula, 'ref_plano' => $ref_plano])->firstOrFail();
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Aula do plano não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->AulaPlano->delete($aulaPlano);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Aula do plano deletada com sucesso',
+                    'aula_plano' => $aulaPlano
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar aula do plano",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

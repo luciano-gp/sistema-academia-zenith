@@ -40,6 +40,10 @@ class MotivoCancelamentoTable extends Table
         $this->setTable('motivo_cancelamento');
         $this->setDisplayField('descricao');
         $this->setPrimaryKey('id');
+
+        $this->hasMany('Contrato', [
+            'foreignKey' => 'ref_motivo_cancelamento',
+        ]);
     }
 
     /**

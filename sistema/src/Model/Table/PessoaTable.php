@@ -44,9 +44,26 @@ class PessoaTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsToMany('Treino', [
-            'foreignKey' => 'pessoa_id',
-            'targetForeignKey' => 'treino_id',
+            'foreignKey' => 'ref_pessoa',
+            'targetForeignKey' => 'ref_treino',
             'joinTable' => 'treino_pessoa',
+        ]);
+
+        $this->hasMany('Contrato', [
+            'foreignKey' => 'ref_pessoa',
+        ]);
+
+        $this->hasMany('Turma', [
+            'foreignKey' => 'ref_pessoa',
+        ]);
+
+        $this->belongsTo('Usuario', [
+            'foreignKey' => 'ref_usuario',
+            'joinTable' => 'treino_pessoa',
+        ]);
+
+        $this->belongsTo('Cidade', [
+            'foreignKey' => 'ref_cidade',
         ]);
     }
 
@@ -75,11 +92,6 @@ class PessoaTable extends Table
             ->notEmptyString('cpf');
 
         $validator
-            ->email('email')
-            ->requirePresence('email', 'create')
-            ->notEmptyString('email');
-
-        $validator
             ->scalar('endereco')
             ->requirePresence('endereco', 'create')
             ->notEmptyString('endereco');
@@ -94,6 +106,11 @@ class PessoaTable extends Table
             ->scalar('genero')
             ->maxLength('genero', 45)
             ->allowEmptyString('genero');
+
+        $validator
+            ->integer('ref_usuario')
+            ->requirePresence('ref_usuario', 'create')
+            ->notEmptyString('ref_usuario');
 
         $validator
             ->integer('ref_cidade')

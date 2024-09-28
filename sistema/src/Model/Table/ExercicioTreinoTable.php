@@ -40,6 +40,14 @@ class ExercicioTreinoTable extends Table
         $this->setTable('exercicio_treino');
         $this->setDisplayField(['ref_exercicio', 'ref_treino']);
         $this->setPrimaryKey(['ref_exercicio', 'ref_treino']);
+
+        $this->hasMany('Exercicio', [
+            'foreignKey' => ['ref_exercicio']
+        ]);
+
+        $this->hasMany('Treino', [
+            'foreignKey' => ['ref_treino']
+        ]);
     }
 
     /**

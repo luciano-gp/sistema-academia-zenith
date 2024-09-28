@@ -17,10 +17,16 @@ class HistoricoController extends AppController
      */
     public function index()
     {
-        $query = $this->Historico->find();
-        $historico = $this->paginate($query);
-
-        $this->set(compact('historico'));
+        try {
+            $historicos = $this->paginate($this->Historico->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($historicos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar historicos",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +38,16 @@ class HistoricoController extends AppController
      */
     public function view($id = null)
     {
-        $historico = $this->Historico->get($id, contain: []);
-        $this->set(compact('historico'));
+        try {
+            $historico = $this->Historico->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($historico));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Historico não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +58,26 @@ class HistoricoController extends AppController
     public function add()
     {
         $historico = $this->Historico->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $historico = $this->Historico->patchEntity($historico, $this->request->getData());
-            if ($this->Historico->save($historico)) {
-                $this->Flash->success(__('The historico has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $historico = $this->Historico->patchEntity($historico, $this->request->getData());
+
+                $this->Historico->saveOrFail($historico);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Historico adicionado com sucesso',
+                        'historico' => $historico
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar historico',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The historico could not be saved. Please, try again.'));
         }
-        $this->set(compact('historico'));
     }
 
     /**
@@ -65,17 +89,37 @@ class HistoricoController extends AppController
      */
     public function edit($id = null)
     {
-        $historico = $this->Historico->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $historico = $this->Historico->patchEntity($historico, $this->request->getData());
-            if ($this->Historico->save($historico)) {
-                $this->Flash->success(__('The historico has been saved.'));
+        $historico = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The historico could not be saved. Please, try again.'));
+        try {
+            $historico = $this->Historico->get($id);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Historico não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('historico'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $historico = $this->Historico->patchEntity($historico, $this->request->getData());
+
+                $this->Historico->saveOrFail($historico);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Historico editado com sucesso',
+                        'historico' => $historico
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar historico",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +132,31 @@ class HistoricoController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $historico = $this->Historico->get($id);
-        if ($this->Historico->delete($historico)) {
-            $this->Flash->success(__('The historico has been deleted.'));
-        } else {
-            $this->Flash->error(__('The historico could not be deleted. Please, try again.'));
+        $historico = null;
+
+        try {
+            $historico = $this->Historico->get($id);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Historico não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Historico->delete($historico);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Historico deletado com sucesso',
+                    'historico' => $historico
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar historico",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

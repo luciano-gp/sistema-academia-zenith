@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MessDetectorOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCSFixerOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCodeSnifferOptionsConfiguration">
+    <option name="highlightLevel" value="WARNING" />
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/sistema/vendor/doctrine/sql-formatter" />
+      <path value="$PROJECT_DIR$/sistema/vendor/mobiledetect/mobiledetectlib" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/config" />
+      <path value="$PROJECT_DIR$/sistema/vendor/justinrainbow/json-schema" />
+      <path value="$PROJECT_DIR$/sistema/vendor/slevomat/coding-standard" />
+      <path value="$PROJECT_DIR$/sistema/vendor/react/promise" />
+      <path value="$PROJECT_DIR$/sistema/vendor/robmorgan/phinx" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/cli-parser" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/lines-of-code" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/complexity" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/code-unit" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/sistema/vendor/league/container" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/version" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/sistema/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phpunit/php-invoker" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/sistema/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/sistema/vendor/seld/jsonlint" />
+      <path value="$PROJECT_DIR$/sistema/vendor/seld/phar-utils" />
+      <path value="$PROJECT_DIR$/sistema/vendor/seld/signal-handler" />
+      <path value="$PROJECT_DIR$/sistema/vendor/composer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phpstan/phpdoc-parser" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/twig-view" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/cakephp-codesniffer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/brick/varexporter" />
+      <path value="$PROJECT_DIR$/sistema/vendor/m1/env" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/chronos" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/debug_kit" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/migrations" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/bake" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/plugin-installer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/cakephp/cakephp" />
+      <path value="$PROJECT_DIR$/sistema/vendor/jasny/twig-extensions" />
+      <path value="$PROJECT_DIR$/sistema/vendor/josegonzalez/dotenv" />
+      <path value="$PROJECT_DIR$/sistema/vendor/twig/markdown-extra" />
+      <path value="$PROJECT_DIR$/sistema/vendor/twig/twig" />
+      <path value="$PROJECT_DIR$/sistema/vendor/dealerdirect/phpcodesniffer-composer-installer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/sistema/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/sistema/vendor/laminas/laminas-httphandlerrunner" />
+      <path value="$PROJECT_DIR$/sistema/vendor/laminas/laminas-diactoros" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/clock" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/http-server-handler" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/http-server-middleware" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/simple-cache" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/sistema/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/sistema/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/polyfill-php81" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/filesystem" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/sistema/vendor/squizlabs/php_codesniffer" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/polyfill-php73" />
+      <path value="$PROJECT_DIR$/sistema/vendor/symfony/polyfill-php80" />
+    </include_path>
+  </component>
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />
+  <component name="PhpStanOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings configuration_file_path="$PROJECT_DIR$/sistema/phpunit.xml.dist" custom_loader_path="$PROJECT_DIR$/sistema/vendor/autoload.php" use_configuration_file="true" />
+    </phpunit_settings>
+  </component>
+  <component name="PsalmOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+</project>

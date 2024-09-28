@@ -17,10 +17,35 @@ class FormaPagamentoController extends AppController
      */
     public function index()
     {
-        $query = $this->FormaPagamento->find();
-        $formaPagamento = $this->paginate($query);
+        try {
+            $formaPagamentos = $this->paginate($this->FormaPagamento->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($formaPagamentos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar formas de pagamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
 
-        $this->set(compact('formaPagamento'));
+    /**
+     * Listar method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function listar()
+    {
+        try {
+            $formaPagamentos = $this->FormaPagamento->find('list')->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($formaPagamentos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar formas de pagamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +57,16 @@ class FormaPagamentoController extends AppController
      */
     public function view($id = null)
     {
-        $formaPagamento = $this->FormaPagamento->get($id, contain: []);
-        $this->set(compact('formaPagamento'));
+        try {
+            $formaPagamento = $this->FormaPagamento->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($formaPagamento));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Forma de pagamento não encontrada",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +77,26 @@ class FormaPagamentoController extends AppController
     public function add()
     {
         $formaPagamento = $this->FormaPagamento->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $formaPagamento = $this->FormaPagamento->patchEntity($formaPagamento, $this->request->getData());
-            if ($this->FormaPagamento->save($formaPagamento)) {
-                $this->Flash->success(__('The forma pagamento has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $formaPagamento = $this->FormaPagamento->patchEntity($formaPagamento, $this->request->getData());
+
+                $this->FormaPagamento->saveOrFail($formaPagamento);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Forma de pagamento adicionada com sucesso',
+                        'forma_pagamento' => $formaPagamento
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar forma de pagamento',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The forma pagamento could not be saved. Please, try again.'));
         }
-        $this->set(compact('formaPagamento'));
     }
 
     /**
@@ -65,17 +108,37 @@ class FormaPagamentoController extends AppController
      */
     public function edit($id = null)
     {
-        $formaPagamento = $this->FormaPagamento->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $formaPagamento = $this->FormaPagamento->patchEntity($formaPagamento, $this->request->getData());
-            if ($this->FormaPagamento->save($formaPagamento)) {
-                $this->Flash->success(__('The forma pagamento has been saved.'));
+        $formaPagamento = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The forma pagamento could not be saved. Please, try again.'));
+        try {
+            $formaPagamento = $this->FormaPagamento->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Forma de pagamento não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('formaPagamento'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $formaPagamento = $this->FormaPagamento->patchEntity($formaPagamento, $this->request->getData());
+
+                $this->FormaPagamento->saveOrFail($formaPagamento);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Forma de pagamento editada com sucesso',
+                        'forma_pagamento' => $formaPagamento
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar forma de pagamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +151,31 @@ class FormaPagamentoController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $formaPagamento = $this->FormaPagamento->get($id);
-        if ($this->FormaPagamento->delete($formaPagamento)) {
-            $this->Flash->success(__('The forma pagamento has been deleted.'));
-        } else {
-            $this->Flash->error(__('The forma pagamento could not be deleted. Please, try again.'));
+        $formaPagamento = null;
+
+        try {
+            $formaPagamento = $this->FormaPagamento->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Forma de pagamento não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->FormaPagamento->delete($formaPagamento);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Forma de Pagamento deletada com sucesso',
+                    'forma_pagamento' => $formaPagamento
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar forma de pagamento",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

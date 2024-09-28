@@ -44,14 +44,15 @@ class TreinoTable extends Table
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->belongsToMany('Exercicio', [
-            'foreignKey' => 'treino_id',
-            'targetForeignKey' => 'exercicio_id',
+        $this->hasMany('Exercicio', [
+            'foreignKey' => 'ref_treino',
+            'targetForeignKey' => 'ref_exercicio',
             'joinTable' => 'exercicio_treino',
         ]);
+
         $this->belongsToMany('Pessoa', [
-            'foreignKey' => 'treino_id',
-            'targetForeignKey' => 'pessoa_id',
+            'foreignKey' => 'ref_treino',
+            'targetForeignKey' => 'ref_pessoa',
             'joinTable' => 'treino_pessoa',
         ]);
     }

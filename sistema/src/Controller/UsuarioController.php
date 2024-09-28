@@ -1,14 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Http\Response;
+
 /**
- * Exercicio Controller
+ * Usuario Controller
  *
- * @property \App\Model\Table\ExercicioTable $Exercicio
+ * @property \App\Model\Table\UsuarioTable $Usuario
  */
-class ExercicioController extends AppController
+class UsuarioController extends AppController
 {
     /**
      * Index method
@@ -18,31 +21,12 @@ class ExercicioController extends AppController
     public function index()
     {
         try {
-            $exercicios = $this->paginate($this->Exercicio->find());
-            return $this->response->withType('application/json')->withStringBody(json_encode($exercicios));
+            $usuarios = $this->paginate($this->Usuario->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($usuarios));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
                 ->withStringBody(json_encode([
-                    "message" => "Erro ao buscar exercicios",
-                    "error" => $e->getMessage()
-                ]));
-        }
-    }
-
-    /**
-     * Listar method
-     *
-     * @return \Cake\Http\Response|null|void Renders view
-     */
-    public function listar()
-    {
-        try {
-            $exercicios = $this->Exercicio->find('list')->toArray();
-            return $this->response->withType('application/json')->withStringBody(json_encode($exercicios));
-        } catch (\Exception $e) {
-            return $this->response->withStatus(500)
-                ->withStringBody(json_encode([
-                    "message" => "Erro ao buscar exercicios",
+                    "message" => "Erro ao buscar usuários",
                     "error" => $e->getMessage()
                 ]));
         }
@@ -51,19 +35,19 @@ class ExercicioController extends AppController
     /**
      * View method
      *
-     * @param string|null $id Exercicio id.
+     * @param string|null $id Usuario id.
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
         try {
-            $exercicio = $this->Exercicio->get($id);
-            return $this->response->withType('application/json')->withStringBody(json_encode($exercicio));
+            $usuario = $this->Usuario->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($usuario));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
-                    "message" => "Exercicio não encontrado",
+                    "message" => "Usuário não encontrado",
                     "error" => $e->getMessage()
                 ]));
         }
@@ -76,23 +60,23 @@ class ExercicioController extends AppController
      */
     public function add()
     {
-        $exercicio = $this->Exercicio->newEmptyEntity();
+        $usuario = $this->Usuario->newEmptyEntity();
 
         if ($this->request->is('post')) {
             try {
-                $exercicio = $this->Exercicio->patchEntity($exercicio, $this->request->getData());
+                $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
 
-                $this->Exercicio->saveOrFail($exercicio);
+                $this->Usuario->saveOrFail($usuario);
 
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
-                        'message' => 'Exercicio adicionado com sucesso',
-                        'exercicio' => $exercicio
+                        'message' => 'Usuário adicionado com sucesso',
+                        'usuario' => $usuario
                     ]));
             } catch (\Exception $e) {
                 return $this->response->withStatus(400)->withType('application/json')
                     ->withStringBody(json_encode([
-                        'message' => 'Erro ao adicionar exercicio',
+                        'message' => 'Erro ao adicionar usuário',
                         'errors' => $e->getMessage()
                     ]));
             }
@@ -102,40 +86,40 @@ class ExercicioController extends AppController
     /**
      * Edit method
      *
-     * @param string|null $id Exercicio id.
+     * @param string|null $id Usuario id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function edit($id = null)
     {
-        $exercicio = null;
+        $usuario = null;
 
         try {
-            $exercicio = $this->Exercicio->get($id, contain: []);
+            $usuario = $this->Usuario->get($id, contain: []);
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
-                    "message" => "Exercicio não encontrado",
+                    "message" => "Usuário não encontrado",
                     "error" => $e->getMessage()
                 ]));
         }
 
         try {
             if ($this->request->is(['patch', 'post', 'put'])) {
-                $exercicio = $this->Exercicio->patchEntity($exercicio, $this->request->getData());
+                $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
 
-                $this->Exercicio->saveOrFail($exercicio);
+                $this->Usuario->saveOrFail($usuario);
 
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
-                        'message' => 'Exercicio editado com sucesso',
-                        'exercicio' => $exercicio
+                        'message' => 'Usuário editado com sucesso',
+                        'usuario' => $usuario
                     ]));
             }
         } catch (\Exception $e) {
             return $this->response->withStatus(400)
                 ->withStringBody(json_encode([
-                    "message" => "Erro ao editar exercicio",
+                    "message" => "Erro ao editar usuário",
                     "error" => $e->getMessage()
                 ]));
         }
@@ -144,36 +128,36 @@ class ExercicioController extends AppController
     /**
      * Delete method
      *
-     * @param string|null $id Exercicio id.
+     * @param string|null $id Usuario id.
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $exercicio = null;
+        $usuario = null;
 
         try {
-            $exercicio = $this->Exercicio->get($id, contain: []);
+            $usuario = $this->Usuario->get($id, contain: []);
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
-                    "message" => "Exercicio não encontrado",
+                    "message" => "Usuário não encontrado",
                     "error" => $e->getMessage()
                 ]));
         }
 
         try {
-            $this->Exercicio->delete($exercicio);
+            $this->Usuario->delete($usuario);
             return $this->response->withType('application/json')
                 ->withStringBody(json_encode([
-                    'message' => 'Exercicio deletado com sucesso',
-                    'exercicio' => $exercicio
+                    'message' => 'Usuário deletado com sucesso',
+                    'usuario' => $usuario
                 ]));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
                 ->withStringBody(json_encode([
-                    "message" => "Erro ao deletar exercicio",
+                    "message" => "Erro ao deletar usuário",
                     "error" => $e->getMessage()
                 ]));
         }

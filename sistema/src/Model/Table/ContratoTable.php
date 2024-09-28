@@ -40,6 +40,31 @@ class ContratoTable extends Table
         $this->setTable('contrato');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo('Pessoa', [
+            'foreignKey' => 'ref_pessoa',
+        ]);
+
+        $this->belongsTo('Plano', [
+            'foreignKey' => 'ref_plano',
+        ]);
+
+        $this->belongsTo('MotivoCancelamento', [
+            'foreignKey' => 'ref_motivo_cancelamento',
+        ]);
+
+        $this->belongsTo('FormaPagamento', [
+            'foreignKey' => 'ref_forma_pagamento',
+        ]);
+
+        $this->belongsTo('PessoaIndicacao', [
+            'foreignKey' => 'ref_pessoa_indicacao',
+            'className' => 'Pessoa',
+        ]);
+
+        $this->hasMany('Titulo', [
+            'foreignKey' => 'ref_contrato',
+        ]);
     }
 
     /**

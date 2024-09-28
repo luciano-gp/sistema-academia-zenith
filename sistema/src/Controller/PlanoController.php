@@ -17,10 +17,35 @@ class PlanoController extends AppController
      */
     public function index()
     {
-        $query = $this->Plano->find();
-        $plano = $this->paginate($query);
+        try {
+            $planos = $this->paginate($this->Plano->find()->contain(['Historico']));
+            return $this->response->withType('application/json')->withStringBody(json_encode($planos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar planos",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
 
-        $this->set(compact('plano'));
+    /**
+     * Listar method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function listar()
+    {
+        try {
+            $planos = $this->Plano->find('list')->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($planos));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar planos",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +57,16 @@ class PlanoController extends AppController
      */
     public function view($id = null)
     {
-        $plano = $this->Plano->get($id, contain: ['Aula']);
-        $this->set(compact('plano'));
+        try {
+            $plano = $this->Plano->get($id, contain: ['Historico']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($plano));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Plano não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,17 +77,26 @@ class PlanoController extends AppController
     public function add()
     {
         $plano = $this->Plano->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $plano = $this->Plano->patchEntity($plano, $this->request->getData());
-            if ($this->Plano->save($plano)) {
-                $this->Flash->success(__('The plano has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $plano = $this->Plano->patchEntity($plano, $this->request->getData());
+
+                $this->Plano->saveOrFail($plano);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Plano adicionado com sucesso',
+                        'plano' => $plano
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar plano',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The plano could not be saved. Please, try again.'));
         }
-        $aula = $this->Plano->Aula->find('list', limit: 200)->all();
-        $this->set(compact('plano', 'aula'));
     }
 
     /**
@@ -66,18 +108,37 @@ class PlanoController extends AppController
      */
     public function edit($id = null)
     {
-        $plano = $this->Plano->get($id, contain: ['Aula']);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $plano = $this->Plano->patchEntity($plano, $this->request->getData());
-            if ($this->Plano->save($plano)) {
-                $this->Flash->success(__('The plano has been saved.'));
+        $plano = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The plano could not be saved. Please, try again.'));
+        try {
+            $plano = $this->Plano->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Plano não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $aula = $this->Plano->Aula->find('list', limit: 200)->all();
-        $this->set(compact('plano', 'aula'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $plano = $this->Plano->patchEntity($plano, $this->request->getData());
+
+                $this->Plano->saveOrFail($plano);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Plano editado com sucesso',
+                        'plano' => $plano
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar plano",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -90,13 +151,31 @@ class PlanoController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $plano = $this->Plano->get($id);
-        if ($this->Plano->delete($plano)) {
-            $this->Flash->success(__('The plano has been deleted.'));
-        } else {
-            $this->Flash->error(__('The plano could not be deleted. Please, try again.'));
+        $plano = null;
+
+        try {
+            $plano = $this->Plano->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Plano não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Plano->delete($plano);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Plano deletado com sucesso',
+                    'plano' => $plano
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar plano",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

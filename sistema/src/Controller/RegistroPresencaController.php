@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 /**
- * RegistroPresenca Controller
+ * RegistroPresenca Controller $this->find('list')->where(['ref_pessoa' => $ref_pessoa])->toArray()
  *
  * @property \App\Model\Table\RegistroPresencaTable $RegistroPresenca
  */
@@ -17,10 +17,36 @@ class RegistroPresencaController extends AppController
      */
     public function index()
     {
-        $query = $this->RegistroPresenca->find();
-        $registroPresenca = $this->paginate($query);
+        try {
+            $registrosPresenca = $this->paginate($this->RegistroPresenca->find());
+            return $this->response->withType('application/json')->withStringBody(json_encode($registrosPresenca));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar registros de presença",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
 
-        $this->set(compact('registroPresenca'));
+    /**
+     * Listar method
+     *
+     * @param string|null $ref_pessoa Pessoa id.
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function listar($ref_pessoa = null)
+    {
+        try {
+            $registrosPresenca = $this->RegistroPresenca->find('list')->where(['ref_pessoa' => $ref_pessoa])->toArray();
+            return $this->response->withType('application/json')->withStringBody(json_encode($registrosPresenca));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao buscar registros de presença",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -32,8 +58,16 @@ class RegistroPresencaController extends AppController
      */
     public function view($id = null)
     {
-        $registroPresenca = $this->RegistroPresenca->get($id, contain: []);
-        $this->set(compact('registroPresenca'));
+        try {
+            $registroPresenca = $this->RegistroPresenca->get($id);
+            return $this->response->withType('application/json')->withStringBody(json_encode($registroPresenca));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Registro de presença não encontrado",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -44,16 +78,26 @@ class RegistroPresencaController extends AppController
     public function add()
     {
         $registroPresenca = $this->RegistroPresenca->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $registroPresenca = $this->RegistroPresenca->patchEntity($registroPresenca, $this->request->getData());
-            if ($this->RegistroPresenca->save($registroPresenca)) {
-                $this->Flash->success(__('The registro presenca has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $registroPresenca = $this->RegistroPresenca->patchEntity($registroPresenca, $this->request->getData());
+
+                $this->RegistroPresenca->saveOrFail($registroPresenca);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Registro de presença adicionado com sucesso',
+                        'registro_presenca' => $registroPresenca
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar registro de presença',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The registro presenca could not be saved. Please, try again.'));
         }
-        $this->set(compact('registroPresenca'));
     }
 
     /**
@@ -65,17 +109,37 @@ class RegistroPresencaController extends AppController
      */
     public function edit($id = null)
     {
-        $registroPresenca = $this->RegistroPresenca->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $registroPresenca = $this->RegistroPresenca->patchEntity($registroPresenca, $this->request->getData());
-            if ($this->RegistroPresenca->save($registroPresenca)) {
-                $this->Flash->success(__('The registro presenca has been saved.'));
+        $registroPresenca = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The registro presenca could not be saved. Please, try again.'));
+        try {
+            $registroPresenca = $this->RegistroPresenca->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Registro de presença não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('registroPresenca'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $registroPresenca = $this->RegistroPresenca->patchEntity($registroPresenca, $this->request->getData());
+
+                $this->RegistroPresenca->saveOrFail($registroPresenca);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Registro de presença editado com sucesso',
+                        'registro_presenca' => $registroPresenca
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar registro de presença",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -88,13 +152,31 @@ class RegistroPresencaController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $registroPresenca = $this->RegistroPresenca->get($id);
-        if ($this->RegistroPresenca->delete($registroPresenca)) {
-            $this->Flash->success(__('The registro presenca has been deleted.'));
-        } else {
-            $this->Flash->error(__('The registro presenca could not be deleted. Please, try again.'));
+        $registroPresenca = null;
+
+        try {
+            $registroPresenca = $this->RegistroPresenca->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Registro de presença não encontrado",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->RegistroPresenca->delete($registroPresenca);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Registro de presença deletado com sucesso',
+                    'registro_presenca' => $registroPresenca
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar registro de presença",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

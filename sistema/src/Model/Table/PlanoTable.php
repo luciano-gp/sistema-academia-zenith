@@ -44,9 +44,17 @@ class PlanoTable extends Table
         $this->setPrimaryKey('id');
 
         $this->belongsToMany('Aula', [
-            'foreignKey' => 'plano_id',
-            'targetForeignKey' => 'aula_id',
+            'foreignKey' => 'ref_aula',
+            'targetForeignKey' => 'ref_plano',
             'joinTable' => 'aula_plano',
+        ]);
+
+        $this->belongsTo('Historico', [
+            'foreignKey' => 'ref_historico',
+        ]);
+
+        $this->hasMany('Contrato', [
+            'foreignKey' => 'ref_plano',
         ]);
     }
 

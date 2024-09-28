@@ -38,8 +38,12 @@ class TituloTable extends Table
         parent::initialize($config);
 
         $this->setTable('titulo');
-        $this->setDisplayField('id');
+        $this->setDisplayField('valor');
         $this->setPrimaryKey('id');
+
+        $this->belongsTo('Contrato', [
+            'foreignKey' => 'ref_contrato',
+        ]);
     }
 
     /**

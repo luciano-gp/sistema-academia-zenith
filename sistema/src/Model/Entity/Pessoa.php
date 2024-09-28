@@ -12,13 +12,13 @@ use Cake\ORM\Entity;
  * @property string $nome
  * @property \Cake\I18n\Date $dt_nascimento
  * @property string $cpf
- * @property string $email
  * @property string $endereco
  * @property string $telefone
  * @property string|null $genero
+ * @property int $ref_usuario
  * @property int $ref_cidade
  *
- * @property \App\Model\Entity\Treino[] $treino
+ * @property \App\Model\Entity\Usuario $usuario
  */
 class Pessoa extends Entity
 {
