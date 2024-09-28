@@ -18,7 +18,7 @@ class TreinoController extends AppController
     public function index()
     {
         try {
-            $treinos = $this->paginate($this->Treino->find()->contain(['Exercicio', 'Pessoa']));
+            $treinos = $this->paginate($this->Treino->find());
             return $this->response->withType('application/json')->withStringBody(json_encode($treinos));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
@@ -50,27 +50,6 @@ class TreinoController extends AppController
     }
 
     /**
-     * Listar Por Pessoa method
-     *
-     * @param string|null $ref_pessoa Pessoa id.
-     * @return \Cake\Http\Response|null|void Renders view
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function listar_por_pessoa($ref_pessoa = null)
-    {
-        try {
-            $treinos = $this->Treino->find()->where(['Treino.ref_pessoa' => $ref_pessoa])->contain(['Exercicio', 'Pessoa'])->toArray();
-            return $this->response->withType('application/json')->withStringBody(json_encode($treinos));
-        } catch (\Exception $e) {
-            return $this->response->withStatus(500)
-                ->withStringBody(json_encode([
-                    "message" => "Erro ao buscar treinos",
-                    "error" => $e->getMessage()
-                ]));
-        }
-    }
-
-    /**
      * View method
      *
      * @param string|null $id Treino id.
@@ -80,7 +59,7 @@ class TreinoController extends AppController
     public function view($id = null)
     {
         try {
-            $treino = $this->Treino->get($id, contain: ['Exercicio', 'Pessoa']);
+            $treino = $this->Treino->get($id);
             return $this->response->withType('application/json')->withStringBody(json_encode($treino));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
