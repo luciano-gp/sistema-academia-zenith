@@ -164,10 +164,16 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/treino/delete/*', ['controller' => 'Treino', 'action' => 'delete']);
 
         $builder->connect('/exercicio_treino', ['controller' => 'ExercicioTreino', 'action' => 'index']);
-        $builder->connect('/exercicio_treino/view/*', ['controller' => 'ExercicioTreino', 'action' => 'view']); // Passar $ref_treino
+        $builder->connect('/exercicio_treino/view/*', ['controller' => 'ExercicioTreino', 'action' => 'view']);
         $builder->connect('/exercicio_treino/add', ['controller' => 'ExercicioTreino', 'action' => 'add']);
         $builder->connect('/exercicio_treino/edit/*', ['controller' => 'ExercicioTreino', 'action' => 'edit']);
         $builder->connect('/exercicio_treino/delete/*', ['controller' => 'ExercicioTreino', 'action' => 'delete']);
+
+        $builder->connect('/treino_pessoa', ['controller' => 'TreinoPessoa', 'action' => 'index']);
+        $builder->connect('/treino_pessoa/view/*', ['controller' => 'TreinoPessoa', 'action' => 'view']);
+        $builder->connect('/treino_pessoa/add', ['controller' => 'TreinoPessoa', 'action' => 'add']);
+        $builder->connect('/treino_pessoa/edit/*', ['controller' => 'TreinoPessoa', 'action' => 'edit']);
+        $builder->connect('/treino_pessoa/delete/*', ['controller' => 'TreinoPessoa', 'action' => 'delete']);
 
         $builder->connect('/turma', ['controller' => 'Turma', 'action' => 'index']);
         $builder->connect('/turma/view/*', ['controller' => 'Turma', 'action' => 'view']);

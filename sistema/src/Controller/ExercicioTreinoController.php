@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Datasource\EntityInterface;
+
 /**
  * ExercicioTreino Controller
  *
@@ -32,14 +34,13 @@ class ExercicioTreinoController extends AppController
     /**
      * View method
      *
-     * @param string|null $ref_treino Treino id.
      * @return \Cake\Http\Response|null|void Renders view
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function view($ref_treino = null)
+    public function view($ref_treino = null, $ref_exercicio = null)
     {
         try {
-            $exercicioTreino = $this->ExercicioTreino->find()->where(['ref_treino' => $ref_treino])->toArray();
+            $exercicioTreino = $this->ExercicioTreino->find()->where(['ref_treino' => $ref_treino, 'ref_exercicio' => $ref_exercicio])->firstOrFail()->toArray();
             return $this->response->withType('application/json')->withStringBody(json_encode($exercicioTreino));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
@@ -83,16 +84,16 @@ class ExercicioTreinoController extends AppController
     /**
      * Edit method
      *
-     * @param string|null $id Exercicio ExercicioTreino id.
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit($ref_treino = null, $ref_exercicio = null)
     {
         $exercicioTreino = null;
 
         try {
-            $exercicioTreino = $this->ExercicioTreino->get($id, contain: []);
+            /** @var EntityInterface $exercicioTreino */
+            $exercicioTreino = $this->ExercicioTreino->find()->where(['ref_treino' => $ref_treino, 'ref_exercicio' => $ref_exercicio])->firstOrFail();
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
@@ -125,17 +126,17 @@ class ExercicioTreinoController extends AppController
     /**
      * Delete method
      *
-     * @param string|null $id Exercicio ExercicioTreino id.
      * @return \Cake\Http\Response|null Redirects to index.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function delete($id = null)
+    public function delete($ref_treino = null, $ref_exercicio = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $exercicioTreino = null;
 
         try {
-            $exercicioTreino = $this->ExercicioTreino->get($id, contain: []);
+            /** @var EntityInterface $exercicioTreino */
+            $exercicioTreino = $this->ExercicioTreino->find()->where(['ref_treino' => $ref_treino, 'ref_exercicio' => $ref_exercicio])->firstOrFail();
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
