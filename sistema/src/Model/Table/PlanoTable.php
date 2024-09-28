@@ -52,6 +52,10 @@ class PlanoTable extends Table
         $this->belongsTo('Historico', [
             'foreignKey' => 'ref_historico',
         ]);
+
+        $this->hasMany('Contrato', [
+            'foreignKey' => 'ref_plano',
+        ]);
     }
 
     /**

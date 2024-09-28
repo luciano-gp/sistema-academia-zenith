@@ -40,6 +40,10 @@ class FormaPagamentoTable extends Table
         $this->setTable('forma_pagamento');
         $this->setDisplayField('metodo');
         $this->setPrimaryKey('id');
+
+        $this->hasMany('Contrato', [
+            'foreignKey' => 'ref_forma_pagamento',
+        ]);
     }
 
     /**

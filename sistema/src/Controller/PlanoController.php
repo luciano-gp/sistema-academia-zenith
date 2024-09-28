@@ -58,7 +58,7 @@ class PlanoController extends AppController
     public function view($id = null)
     {
         try {
-            $plano = $this->Plano->get($id);
+            $plano = $this->Plano->get($id, contain: ['Historico']);
             return $this->response->withType('application/json')->withStringBody(json_encode($plano));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)

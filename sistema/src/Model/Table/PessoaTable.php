@@ -49,6 +49,14 @@ class PessoaTable extends Table
             'joinTable' => 'treino_pessoa',
         ]);
 
+        $this->hasMany('Contrato', [
+            'foreignKey' => 'ref_pessoa',
+        ]);
+
+        $this->hasMany('Contrato', [
+            'foreignKey' => 'ref_pessoa_indicacao',
+        ]);
+
         $this->belongsTo('Usuario', [
             'foreignKey' => 'ref_usuario',
             'joinTable' => 'treino_pessoa',
