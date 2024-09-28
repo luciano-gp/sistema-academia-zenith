@@ -53,8 +53,8 @@ class PessoaTable extends Table
             'foreignKey' => 'ref_pessoa',
         ]);
 
-        $this->hasMany('Contrato', [
-            'foreignKey' => 'ref_pessoa_indicacao',
+        $this->hasMany('Turma', [
+            'foreignKey' => 'ref_pessoa',
         ]);
 
         $this->belongsTo('Usuario', [

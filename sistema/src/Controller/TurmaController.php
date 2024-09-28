@@ -18,12 +18,12 @@ class TurmaController extends AppController
     public function index()
     {
         try {
-            $turmas = $this->paginate($this->Turma->find());
+            $turmas = $this->paginate($this->Turma->find()->contain(['Pessoa', 'OcorrenciaAula']));
             return $this->response->withType('application/json')->withStringBody(json_encode($turmas));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
                 ->withStringBody(json_encode([
-                    "message" => "Erro ao buscar usuários",
+                    "message" => "Erro ao buscar turmas",
                     "error" => $e->getMessage()
                 ]));
         }
@@ -39,12 +39,12 @@ class TurmaController extends AppController
     public function view($id = null)
     {
         try {
-            $usuario = $this->Usuario->get($id);
-            return $this->response->withType('application/json')->withStringBody(json_encode($usuario));
+            $turma = $this->Turma->get($id, contain: ['Pessoa', 'OcorrenciaAula']);
+            return $this->response->withType('application/json')->withStringBody(json_encode($turma));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
-                    "message" => "Usuário não encontrado",
+                    "message" => "Turma não encontrada",
                     "error" => $e->getMessage()
                 ]));
         }
@@ -58,16 +58,26 @@ class TurmaController extends AppController
     public function add()
     {
         $turma = $this->Turma->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $turma = $this->Turma->patchEntity($turma, $this->request->getData());
-            if ($this->Turma->saveOrFail($turma)) {
-                $this->Flash->success(__('The turma has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+        if ($this->request->is('post')) {
+            try {
+                $turma = $this->Turma->patchEntity($turma, $this->request->getData());
+
+                $this->Turma->saveOrFail($turma);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Turma adicionada com sucesso',
+                        'turma' => $turma
+                    ]));
+            } catch (\Exception $e) {
+                return $this->response->withStatus(400)->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Erro ao adicionar turma',
+                        'errors' => $e->getMessage()
+                    ]));
             }
-            $this->Flash->error(__('The turma could not be saved. Please, try again.'));
         }
-        $this->set(compact('turma'));
     }
 
     /**
@@ -79,17 +89,37 @@ class TurmaController extends AppController
      */
     public function edit($id = null)
     {
-        $turma = $this->Turma->get($id, contain: []);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $turma = $this->Turma->patchEntity($turma, $this->request->getData());
-            if ($this->Turma->saveOrFail($turma)) {
-                $this->Flash->success(__('The turma has been saved.'));
+        $turma = null;
 
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The turma could not be saved. Please, try again.'));
+        try {
+            $turma = $this->Turma->get($id, contain: ['Pessoa', 'OcorrenciaAula']);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Turma não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
-        $this->set(compact('turma'));
+
+        try {
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $turma = $this->Turma->patchEntity($turma, $this->request->getData());
+
+                $this->Turma->saveOrFail($turma);
+
+                return $this->response->withType('application/json')
+                    ->withStringBody(json_encode([
+                        'message' => 'Turma editada com sucesso',
+                        'turma' => $turma
+                    ]));
+            }
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao editar turma",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 
     /**
@@ -102,13 +132,31 @@ class TurmaController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $turma = $this->Turma->get($id);
-        if ($this->Turma->delete($turma)) {
-            $this->Flash->success(__('The turma has been deleted.'));
-        } else {
-            $this->Flash->error(__('The turma could not be deleted. Please, try again.'));
+        $turma = null;
+
+        try {
+            $turma = $this->Turma->get($id, contain: []);
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Turma não encontrada",
+                    "error" => $e->getMessage()
+                ]));
         }
 
-        return $this->redirect(['action' => 'index']);
+        try {
+            $this->Turma->delete($turma);
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Turma deletada com sucesso',
+                    'turma' => $turma
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(500)
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao deletar Turma",
+                    "error" => $e->getMessage()
+                ]));
+        }
     }
 }

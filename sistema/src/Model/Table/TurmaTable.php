@@ -41,8 +41,12 @@ class TurmaTable extends Table
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
 
-        $this->hasOne('Pessoa', [
+        $this->belongsTo('Pessoa', [
             'foreignKey' => 'ref_pessoa',
+        ]);
+
+        $this->belongsTo('OcorrenciaAula', [
+            'foreignKey' => 'ref_ocorrencia_aula',
         ]);
     }
 
