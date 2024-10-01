@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Model\Entity\Usuario;
 use Cake\Http\Response;
+use Cake\Utility\Security;
 
 /**
  * Usuario Controller
@@ -27,6 +29,53 @@ class UsuarioController extends AppController
             return $this->response->withStatus(500)
                 ->withStringBody(json_encode([
                     "message" => "Erro ao buscar usuários",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
+
+    /**
+     * Login method
+     *
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function login()
+    {
+        $this->request->allowMethod(['post']);
+
+        $data = $this->request->getData();
+        $email = $data['email'] ?? null;
+        $senha = $data['senha'] ?? null;
+
+        if (empty($email) || empty($senha)) {
+            return $this->response->withStatus(400)
+                ->withStringBody(json_encode([
+                    "message" => "E-mail e senha são obrigatórios"
+                ]));
+        }
+
+        try {
+            /** @var Usuario $usuario */
+            $usuario = $this->Usuario->find('all')
+                ->where(['email' => $email])
+                ->firstOrFail();
+
+            if (Security::hash($senha) !== $usuario->senha) {
+                return $this->response->withStatus(401)
+                    ->withStringBody(json_encode([
+                        "message" => "E-mail ou senha inválidos"
+                    ]));
+            }
+
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    "message" => "Login bem-sucedido",
+                    "usuario" => $usuario
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(400)->withType('application/json')
+                ->withStringBody(json_encode([
+                    "message" => "Erro ao realizar o login",
                     "error" => $e->getMessage()
                 ]));
         }
