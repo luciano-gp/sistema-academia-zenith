@@ -41,7 +41,7 @@ class TreinoTable extends Table
         parent::initialize($config);
 
         $this->setTable('treino');
-        $this->setDisplayField('id');
+        $this->setDisplayField('descricao');
         $this->setPrimaryKey('id');
 
         $this->hasMany('Exercicio', [
