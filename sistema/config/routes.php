@@ -186,6 +186,8 @@ return function (RouteBuilder $routes): void {
         $builder->connect('/turma/edit/*', ['controller' => 'Turma', 'action' => 'edit']);
         $builder->connect('/turma/delete/*', ['controller' => 'Turma', 'action' => 'delete']);
 
+        $builder->connect('/relatorio/relatorio_frequencia', ['controller' => 'Relatorio', 'action' => 'relatorio_frequencia']);
+
         /*
          * ...and connect the rest of 'Pages' controller's URLs.
          */

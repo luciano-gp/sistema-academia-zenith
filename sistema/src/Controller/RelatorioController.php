@@ -12,7 +12,7 @@ use Cake\I18n\FrozenDate;
  *
  * @property \App\Model\Table\RegistroPresencaTable $RegistroPresenca
  */
-class RelatoriosController extends AppController
+class RelatorioController extends AppController
 {
     /**
      * Relatorio Frequencia method
