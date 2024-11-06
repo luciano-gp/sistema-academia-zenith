@@ -57,7 +57,7 @@ return function (RouteBuilder $routes): void {
          */
         $builder->setExtensions(['json']);
 
-        $builder->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
+        // $builder->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
 
         $builder->connect('/usuario', ['controller' => 'Usuario', 'action' => 'index']);
         $builder->connect('/usuario/login', ['controller' => 'Usuario', 'action' => 'login']);
@@ -133,6 +133,7 @@ return function (RouteBuilder $routes): void {
 
         $builder->connect('/pessoa', ['controller' => 'Pessoa', 'action' => 'index']);
         $builder->connect('/pessoa/view/*', ['controller' => 'Pessoa', 'action' => 'view']);
+        $builder->connect('/pessoa/byUserId/*', ['controller' => 'Pessoa', 'action' => 'byUserId']);
         $builder->connect('/pessoa/add', ['controller' => 'Pessoa', 'action' => 'add']);
         $builder->connect('/pessoa/edit/*', ['controller' => 'Pessoa', 'action' => 'edit']);
         $builder->connect('/pessoa/delete/*', ['controller' => 'Pessoa', 'action' => 'delete']);

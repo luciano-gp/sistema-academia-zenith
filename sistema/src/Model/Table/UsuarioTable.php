@@ -40,11 +40,6 @@ class UsuarioTable extends Table
         $this->setTable('usuario');
         $this->setDisplayField('email');
         $this->setPrimaryKey('id');
-
-        $this->hasOne('Pessoa', [
-            'foreignKey' => 'ref_usuario',
-            'joinTable' => 'treino_pessoa',
-        ]);
     }
 
     /**
@@ -65,6 +60,15 @@ class UsuarioTable extends Table
             ->maxLength('senha', 200)
             ->requirePresence('senha', 'create')
             ->notEmptyString('senha');
+
+        $validator
+            ->integer('tipo')
+            ->requirePresence('tipo', 'create')
+            ->notEmptyString('tipo');
+
+        $validator
+            ->boolean('ativo')
+            ->notEmptyString('ativo');
 
         return $validator;
     }

@@ -59,7 +59,7 @@ class PessoaTable extends Table
 
         $this->belongsTo('Usuario', [
             'foreignKey' => 'ref_usuario',
-            'joinTable' => 'treino_pessoa',
+            'joinTable' => 'usuario',
         ]);
 
         $this->belongsTo('Cidade', [

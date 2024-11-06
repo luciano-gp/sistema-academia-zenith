@@ -51,6 +51,33 @@ class PessoaController extends AppController
     }
 
     /**
+     * ByUserId method
+     *
+     * @param string|null $id Usuario id.
+     * @return \Cake\Http\Response|null|void Renders view
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     */
+    public function byUserId($id)
+    {
+        try {
+            $pessoa = $this->Pessoa
+                ->find()
+                ->where(['ref_usuario' => $id])
+                ->contain(['Cidade', 'Usuario'])
+                ->firstOrFail();
+                return $this->response->withType('application/json')->withStringBody(json_encode([
+                    "person" => $pessoa
+                ]));
+        } catch (\Exception $e) {
+            return $this->response->withStatus(404)
+                ->withStringBody(json_encode([
+                    "message" => "Pessoa não encontrada",
+                    "error" => $e->getMessage()
+                ]));
+        }
+    }
+
+    /**
      * Add method
      *
      * @return \Cake\Http\Response|null|void Redirects on successful add, renders view otherwise.

@@ -57,7 +57,7 @@ class UsuarioController extends AppController
         try {
             /** @var Usuario $usuario */
             $usuario = $this->Usuario->find('all')
-                ->where(['email' => $email])
+                ->where(['email' => $email, 'ativo' => true])
                 ->firstOrFail();
 
             if (Security::hash($senha) !== $usuario->senha) {
@@ -70,7 +70,7 @@ class UsuarioController extends AppController
             return $this->response->withType('application/json')
                 ->withStringBody(json_encode([
                     "message" => "Login bem-sucedido",
-                    "usuario" => $usuario
+                    "user" => $usuario
                 ]));
         } catch (\Exception $e) {
             return $this->response->withStatus(400)->withType('application/json')
@@ -120,7 +120,7 @@ class UsuarioController extends AppController
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
                         'message' => 'Usuário adicionado com sucesso',
-                        'usuario' => $usuario
+                        'user' => $usuario
                     ]));
             } catch (\Exception $e) {
                 return $this->response->withStatus(400)->withType('application/json')
@@ -162,7 +162,7 @@ class UsuarioController extends AppController
                 return $this->response->withType('application/json')
                     ->withStringBody(json_encode([
                         'message' => 'Usuário editado com sucesso',
-                        'usuario' => $usuario
+                        'user' => $usuario
                     ]));
             }
         } catch (\Exception $e) {
@@ -201,7 +201,7 @@ class UsuarioController extends AppController
             return $this->response->withType('application/json')
                 ->withStringBody(json_encode([
                     'message' => 'Usuário deletado com sucesso',
-                    'usuario' => $usuario
+                    'user' => $usuario
                 ]));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
