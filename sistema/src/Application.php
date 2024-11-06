@@ -19,6 +19,7 @@ namespace App;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Datasource\FactoryLocator;
+use Cake\Http\Middleware\CorsMiddleware;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
 use Cake\Http\Middleware\BodyParserMiddleware;
@@ -90,6 +91,14 @@ class Application extends BaseApplication
             // ->add(new CsrfProtectionMiddleware([
             //     'httponly' => true,
             // ]));
+            ->add(new CorsMiddleware([
+                'origin' => ['*'], // Em produção, especifique o domínio real
+                'allowMethods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+                'allowHeaders' => ['X-CSRF-Token', 'Content-Type', 'Authorization', 'Accept'],
+                'exposeHeaders' => ['Link'],
+                'maxAge' => 300,
+                'credentials' => true
+            ]))
             ;
 
         return $middlewareQueue;
