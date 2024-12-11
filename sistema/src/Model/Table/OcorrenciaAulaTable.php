@@ -69,12 +69,12 @@ class OcorrenciaAulaTable extends Table
             ->allowEmptyString('dia_semana');
 
         $validator
-            ->dateTime('horario_inicial')
-            ->allowEmptyDateTime('horario_inicial');
+            ->time('horario_inicial')
+            ->allowEmptyTime('horario_inicial');
 
         $validator
-            ->dateTime('horario_final')
-            ->allowEmptyDateTime('horario_final');
+            ->time('horario_final')
+            ->allowEmptyTime('horario_final');
 
         $validator
             ->scalar('profissional')
