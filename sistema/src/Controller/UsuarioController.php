@@ -114,6 +114,7 @@ class UsuarioController extends AppController
         if ($this->request->is('post')) {
             try {
                 $usuario = $this->Usuario->patchEntity($usuario, $this->request->getData());
+                $usuario->senha = Security::hash($usuario->senha);
 
                 $this->Usuario->saveOrFail($usuario);
 

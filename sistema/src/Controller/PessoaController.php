@@ -40,7 +40,7 @@ class PessoaController extends AppController
     public function view($id = null)
     {
         try {
-            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario', 'Treino']);
+            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario', 'Treino', 'Exercicio']);
             return $this->response->withType('application/json')->withStringBody(json_encode($pessoa));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
@@ -64,7 +64,7 @@ class PessoaController extends AppController
             $pessoa = $this->Pessoa
                 ->find()
                 ->where(['ref_usuario' => $id])
-                ->contain(['Cidade', 'Usuario', 'Treino'])
+                ->contain(['Cidade', 'Usuario', 'Treino' => ['Exercicio']])
                 ->firstOrFail();
             return $this->response->withType('application/json')->withStringBody(json_encode([
                 "person" => $pessoa
