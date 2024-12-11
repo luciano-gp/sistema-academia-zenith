@@ -74,8 +74,7 @@ class PlanoTable extends Table
 
         $validator
             ->scalar('descricao')
-            ->requirePresence('descricao', 'create')
-            ->notEmptyString('descricao');
+            ->allowEmptyString('descricao');
 
         $validator
             ->dateTime('dt_inicio')

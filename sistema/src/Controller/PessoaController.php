@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -39,7 +40,7 @@ class PessoaController extends AppController
     public function view($id = null)
     {
         try {
-            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario']);
+            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario', 'Treino']);
             return $this->response->withType('application/json')->withStringBody(json_encode($pessoa));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
@@ -63,11 +64,11 @@ class PessoaController extends AppController
             $pessoa = $this->Pessoa
                 ->find()
                 ->where(['ref_usuario' => $id])
-                ->contain(['Cidade', 'Usuario'])
+                ->contain(['Cidade', 'Usuario', 'Treino'])
                 ->firstOrFail();
-                return $this->response->withType('application/json')->withStringBody(json_encode([
-                    "person" => $pessoa
-                ]));
+            return $this->response->withType('application/json')->withStringBody(json_encode([
+                "person" => $pessoa
+            ]));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
@@ -84,28 +85,45 @@ class PessoaController extends AppController
      */
     public function add()
     {
-        $pessoa = $this->Pessoa->newEmptyEntity();
+        $this->request->allowMethod(['post']);
 
-        if ($this->request->is('post')) {
-            try {
-                $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
+        $data = $this->request->getData();
 
-                $this->Pessoa->saveOrFail($pessoa);
+        $pessoa = $this->Pessoa->newEntity([
+            'nome' => $data['nome'],
+            'dt_nascimento' => $data['dt_nascimento'],
+            'cpf' => $data['cpf'],
+            'endereco' => $data['endereco'],
+            'telefone' => $data['telefone'],
+            'genero' => $data['genero'],
+            'ref_cidade' => $data['ref_cidade'],
+            'ref_usuario' => $data['ref_usuario'],
+            'treino' => array_map(function ($treino) {
+                return [
+                    'id' => $treino['ref_treino'],
+                    '_joinData' => [
+                        'dt_inicial' => $treino['dt_inicial'],
+                        'dt_final' => $treino['dt_final'] ?? null,
+                    ]
+                ];
+            }, $data['treino'] ?? [])
+        ], ['associated' => ['Treino']]);
 
-                return $this->response->withType('application/json')
-                    ->withStringBody(json_encode([
-                        'message' => 'Pessoa adicionada com sucesso',
-                        'pessoa' => $pessoa
-                    ]));
-            } catch (\Exception $e) {
-                return $this->response->withStatus(400)->withType('application/json')
-                    ->withStringBody(json_encode([
-                        'message' => 'Erro ao adicionar pessoa',
-                        'errors' => $e->getMessage()
-                    ]));
-            }
+        if ($this->Pessoa->save($pessoa)) {
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Pessoa adicionada com sucesso',
+                    'pessoa' => $pessoa
+                ]));
         }
+
+        return $this->response->withStatus(400)
+            ->withStringBody(json_encode([
+                'message' => 'Erro ao salvar a pessoa',
+                'errors' => $pessoa->getErrors()
+            ]));
     }
+
 
     /**
      * Edit method
@@ -114,40 +132,58 @@ class PessoaController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit($id)
     {
-        $pessoa = null;
+        $this->request->allowMethod(['put', 'patch']);
 
-        try {
-            $pessoa = $this->Pessoa->get($id, contain: ['Cidade', 'Usuario']);
-        } catch (\Exception $e) {
+        $data = $this->request->getData();
+
+        $pessoa = $this->Pessoa->get($id, [
+            'contain' => ['Treino', 'Usuario', 'Cidade']
+        ]);
+
+        if (!$pessoa) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
-                    "message" => "Pessoa não encontrada",
-                    "error" => $e->getMessage()
+                    'message' => 'Pessoa não encontrada'
                 ]));
         }
 
-        try {
-            if ($this->request->is(['patch', 'post', 'put'])) {
-                $pessoa = $this->Pessoa->patchEntity($pessoa, $this->request->getData());
+        $pessoa = $this->Pessoa->patchEntity($pessoa, [
+            'nome' => $data['nome'],
+            'dt_nascimento' => $data['dt_nascimento'],
+            'cpf' => $data['cpf'],
+            'endereco' => $data['endereco'] ?? '',
+            'telefone' => $data['telefone'],
+            'genero' => $data['genero'] ?? null,
+            'ref_cidade' => $data['ref_cidade'],
+            'ref_usuario' => $data['ref_usuario'],
+            'treino' => array_map(function ($treino) {
+                return [
+                    'id' => $treino['ref_treino'],
+                    '_joinData' => [
+                        'dt_inicial' => $treino['dt_inicial'],
+                        'dt_final' => $treino['dt_final'] ?? null,
+                    ]
+                ];
+            }, $data['treino'] ?? [])
+        ], ['associated' => ['Treino']]);
 
-                $this->Pessoa->saveOrFail($pessoa);
-
-                return $this->response->withType('application/json')
-                    ->withStringBody(json_encode([
-                        'message' => 'Pessoa editada com sucesso',
-                        'pessoa' => $pessoa
-                    ]));
-            }
-        } catch (\Exception $e) {
-            return $this->response->withStatus(400)
+        if ($this->Pessoa->save($pessoa)) {
+            return $this->response->withType('application/json')
                 ->withStringBody(json_encode([
-                    "message" => "Erro ao editar pessoa",
-                    "error" => $e->getMessage()
+                    'message' => 'Pessoa atualizada com sucesso',
+                    'pessoa' => $pessoa
                 ]));
         }
+
+        return $this->response->withStatus(400)
+            ->withStringBody(json_encode([
+                'message' => 'Erro ao atualizar a pessoa',
+                'errors' => $pessoa->getErrors()
+            ]));
     }
+
 
     /**
      * Delete method

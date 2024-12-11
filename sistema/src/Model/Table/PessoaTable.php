@@ -47,6 +47,9 @@ class PessoaTable extends Table
             'foreignKey' => 'ref_pessoa',
             'targetForeignKey' => 'ref_treino',
             'joinTable' => 'treino_pessoa',
+            'saveStrategy' => 'replace',
+            'dependent' => true,
+            'cascadeCallbacks' => true,
         ]);
 
         $this->hasMany('Contrato', [
@@ -93,8 +96,7 @@ class PessoaTable extends Table
 
         $validator
             ->scalar('endereco')
-            ->requirePresence('endereco', 'create')
-            ->notEmptyString('endereco');
+            ->allowEmptyString('endereco');
 
         $validator
             ->scalar('telefone')

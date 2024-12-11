@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -18,7 +19,10 @@ class TreinoController extends AppController
     public function index()
     {
         try {
-            $treinos = $this->paginate($this->Treino->find());
+            $treinos = $this->paginate($this->Treino->find('all', [
+                'contain' => ['Exercicio']
+            ]));
+
             return $this->response->withType('application/json')->withStringBody(json_encode($treinos));
         } catch (\Exception $e) {
             return $this->response->withStatus(500)
@@ -59,7 +63,7 @@ class TreinoController extends AppController
     public function view($id = null)
     {
         try {
-            $treino = $this->Treino->get($id);
+            $treino = $this->Treino->get($id, contain: ['Exercicio']);
             return $this->response->withType('application/json')->withStringBody(json_encode($treino));
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
@@ -77,27 +81,39 @@ class TreinoController extends AppController
      */
     public function add()
     {
-        $treino = $this->Treino->newEmptyEntity();
+        $this->request->allowMethod(['post']);
 
-        if ($this->request->is('post')) {
-            try {
-                $treino = $this->Treino->patchEntity($treino, $this->request->getData());
+        $data = $this->request->getData();
 
-                $this->Treino->saveOrFail($treino);
+        // Cria uma nova entidade para o treino
+        $treino = $this->Treino->newEntity([
+            'descricao' => $data['descricao'],
+            'exercicio' => array_map(function ($exercicio) {
+                return [
+                    'id' => $exercicio['ref_exercicio'],
+                    '_joinData' => [
+                        'num_series' => $exercicio['num_series'],
+                        'num_repeticoes' => $exercicio['num_repeticoes'],
+                        'carga' => $exercicio['carga'],
+                        'observacao' => $exercicio['observacao']
+                    ]
+                ];
+            }, $data['exercicio'])
+        ], ['associated' => ['Exercicio']]);
 
-                return $this->response->withType('application/json')
-                    ->withStringBody(json_encode([
-                        'message' => 'Treino adicionado com sucesso',
-                        'treino' => $treino
-                    ]));
-            } catch (\Exception $e) {
-                return $this->response->withStatus(400)->withType('application/json')
-                    ->withStringBody(json_encode([
-                        'message' => 'Erro ao adicionar treino',
-                        'errors' => $e->getMessage()
-                    ]));
-            }
+        if ($this->Treino->save($treino)) {
+            return $this->response->withType('application/json')
+                ->withStringBody(json_encode([
+                    'message' => 'Treino adicionado com sucesso',
+                    'treino' => $treino
+                ]));
         }
+
+        return $this->response->withStatus(400)
+            ->withStringBody(json_encode([
+                'message' => 'Erro ao salvar o treino',
+                'errors' => $treino->getErrors()
+            ]));
     }
 
     /**
@@ -107,39 +123,51 @@ class TreinoController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function edit($id = null)
+    public function edit($id)
     {
-        $treino = null;
+        $this->request->allowMethod(['put', 'patch']);
 
-        try {
-            $treino = $this->Treino->get($id, contain: []);
-        } catch (\Exception $e) {
+        $data = $this->request->getData();
+
+        $treino = $this->Treino->get($id, [
+            'contain' => ['Exercicio']
+        ]);
+
+        if (!$treino) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([
-                    "message" => "Treino não encontrado",
-                    "error" => $e->getMessage()
+                    'message' => 'Treino não encontrado'
                 ]));
         }
 
-        try {
-            if ($this->request->is(['patch', 'post', 'put'])) {
-                $treino = $this->Treino->patchEntity($treino, $this->request->getData());
+        $treino = $this->Treino->patchEntity($treino, [
+            'descricao' => $data['descricao'],
+            'exercicio' => array_map(function ($exercicio) {
+                return [
+                    'id' => $exercicio['ref_exercicio'],
+                    '_joinData' => [
+                        'num_series' => $exercicio['num_series'],
+                        'num_repeticoes' => $exercicio['num_repeticoes'],
+                        'carga' => $exercicio['carga'],
+                        'observacao' => $exercicio['observacao']
+                    ]
+                ];
+            }, $data['exercicio'])
+        ], ['associated' => ['Exercicio']]);
 
-                $this->Treino->saveOrFail($treino);
-
-                return $this->response->withType('application/json')
-                    ->withStringBody(json_encode([
-                        'message' => 'Treino editado com sucesso',
-                        'treino' => $treino
-                    ]));
-            }
-        } catch (\Exception $e) {
-            return $this->response->withStatus(400)
+        if ($this->Treino->save($treino)) {
+            return $this->response->withType('application/json')
                 ->withStringBody(json_encode([
-                    "message" => "Erro ao editar treino",
-                    "error" => $e->getMessage()
+                    'message' => 'Treino atualizado com sucesso',
+                    'treino' => $treino
                 ]));
         }
+
+        return $this->response->withStatus(400)
+            ->withStringBody(json_encode([
+                'message' => 'Erro ao atualizar o treino',
+                'errors' => $treino->getErrors()
+            ]));
     }
 
     /**
@@ -155,7 +183,7 @@ class TreinoController extends AppController
         $treino = null;
 
         try {
-            $treino = $this->Treino->get($id, contain: []);
+            $treino = $this->Treino->get($id, contain: ['Exercicio']);
         } catch (\Exception $e) {
             return $this->response->withStatus(404)
                 ->withStringBody(json_encode([

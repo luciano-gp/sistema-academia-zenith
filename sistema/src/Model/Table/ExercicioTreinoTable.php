@@ -41,12 +41,12 @@ class ExercicioTreinoTable extends Table
         $this->setDisplayField(['ref_exercicio', 'ref_treino']);
         $this->setPrimaryKey(['ref_exercicio', 'ref_treino']);
 
-        $this->hasMany('Exercicio', [
-            'foreignKey' => ['ref_exercicio']
+        $this->belongsTo('Exercicio', [
+            'foreignKey' => 'ref_exercicio'
         ]);
 
-        $this->hasMany('Treino', [
-            'foreignKey' => ['ref_treino']
+        $this->belongsTo('Treino', [
+            'foreignKey' => 'ref_treino'
         ]);
     }
 
